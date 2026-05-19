@@ -4,10 +4,21 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // ✅ sends cookie automatically on every request
+  withCredentials: true,
 });
 
-// ✅ Response interceptor — only redirect on 401 if not an auth call + not already on login page
+// ✅ Attach JWT from localStorage as Bearer token on every request
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("da_jwt");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// ✅ Only redirect on 401 if not an auth endpoint and not already on login page
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -16,13 +27,13 @@ api.interceptors.response.use(
     const isLoginPage = typeof window !== "undefined" && window.location.pathname.startsWith("/login");
 
     if (is401 && !isAuthEndpoint && !isLoginPage) {
+      localStorage.removeItem("da_jwt");
       window.location.href = "/login";
     }
     return Promise.reject(error);
   }
 );
 
-// Appointment API calls
 export const appointmentsApi = {
   getByUser: (email: string) => api.get(`/appointments?email=${email}`),
   create: (data: object) => api.post("/appointments", data),
@@ -30,7 +41,12 @@ export const appointmentsApi = {
   delete: (id: string) => api.delete(`/appointments/${id}`),
 };
 
-// Auth token exchange
 export const authApi = {
-  getJwt: (email: string) => api.post("/auth/jwt", { email }),
+  getJwt: async (email: string) => {
+    const res = await api.post("/auth/jwt", { email });
+    if (res.data?.token && typeof window !== "undefined") {
+      localStorage.setItem("da_jwt", res.data.token);
+    }
+    return res;
+  },
 };
