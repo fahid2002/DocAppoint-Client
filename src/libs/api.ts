@@ -4,19 +4,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: true, // ✅ sends cookie automatically on every request
 });
 
-// Add JWT token to every request if present
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("da_jwt");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+// ✅ Response interceptor — handle 401 globally (token expired / not logged in)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      window.location.href = "/login"; // redirect to login on auth failure
     }
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 // Appointment API calls
 export const appointmentsApi = {

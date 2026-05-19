@@ -11,6 +11,7 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@tabler/icons-react": "^3.44.0",
+    "@tabler/icons-webfont": "^3.44.0",
     "axios": "^1.16.1",
     "better-auth": "^1.6.11",
     "lucide-react": "^1.16.0",
