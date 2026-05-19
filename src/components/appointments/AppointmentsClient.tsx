@@ -82,8 +82,7 @@ export default function AppointmentsClient() {
             <p style={{ fontSize: 15, marginTop: "1rem" }}>No doctors found. Try a different search.</p>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem" }} className="docs-grid-resp">
-            {docs.map(d => <DoctorCard key={d.id} doc={d} />)}
+<div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem", gridAutoRows: "1fr" }} className="docs-grid-resp">            {docs.map(d => <DoctorCard key={d.id} doc={d} />)}
           </div>
         )}
       </div>
