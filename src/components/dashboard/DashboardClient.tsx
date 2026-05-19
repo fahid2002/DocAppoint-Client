@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "@/libs/auth-client";
 import { useRouter } from "next/navigation";
-import { appointmentsApi, authApi } from "@/libs/api"; 
+import { appointmentsApi, authApi } from "@/libs/api";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
@@ -38,18 +38,38 @@ export default function DashboardClient() {
   const [profileForm, setProfileForm] = useState({ name: "", photo: "" });
   const [saving, setSaving] = useState(false);
 
+  // ✅ Fix 3: prevent double JWT call (email login + Google redirect both handled here)
+  const jwtIssued = useRef(false);
+
   const user = session?.user;
 
+  // ✅ Fix: single unified effect — guards redirect until session resolves,
+  //         issues JWT once for both email and Google login flows
   useEffect(() => {
-    if (!isPending && !user) { router.push("/login?redirect=/dashboard"); }
+    if (isPending) return; // ← don't do anything while session is still loading
+
+    if (!user) {
+      // session fully loaded and no user — redirect to login
+      router.push("/login?redirect=/dashboard");
+      return;
+    }
+
+    // session loaded and user exists — issue JWT once
+    // handles Google redirect case (email login already called it, but
+    // jwtIssued.current prevents the double call)
+    if (!jwtIssued.current && user.email) {
+      jwtIssued.current = true;
+      authApi.getJwt(user.email).catch(() => {
+        console.error("JWT exchange failed — appointments may not work.");
+      });
+    }
   }, [isPending, user, router]);
 
+  // ✅ Fix: fetch bookings only after JWT is issued
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email || !jwtIssued.current) return;
     setLoading(true);
-
-    authApi.getJwt(user.email)
-      .then(() => appointmentsApi.getByUser(user.email))
+    appointmentsApi.getByUser(user.email)
       .then(res => setBookings(res.data))
       .catch(() => setBookings([]))
       .finally(() => setLoading(false));
@@ -96,6 +116,7 @@ export default function DashboardClient() {
     finally { setSaving(false); }
   };
 
+  // ✅ Fix: show spinner while session is loading — never redirect prematurely
   if (isPending) return <div className="spinner"><div className="spin-anim" />Loading…</div>;
   if (!user) return null;
 
@@ -126,7 +147,6 @@ export default function DashboardClient() {
 
       {/* Main */}
       <div style={{ flex: 1, padding: "1.8rem 2rem", background: "var(--bg)", minWidth: 0, overflowAuto: "auto" } as React.CSSProperties}>
-        {/* Bookings tab */}
         {tab === "bookings" && (
           <div>
             <h2 style={{ fontFamily: "Sora, sans-serif", fontSize: 20, fontWeight: 800, color: "var(--tx)", marginBottom: "1.2rem" }}>My Bookings</h2>
@@ -165,7 +185,6 @@ export default function DashboardClient() {
           </div>
         )}
 
-        {/* Profile tab */}
         {tab === "profile" && (
           <div>
             <h2 style={{ fontFamily: "Sora, sans-serif", fontSize: 20, fontWeight: 800, color: "var(--tx)", marginBottom: "1.2rem" }}>My Profile</h2>

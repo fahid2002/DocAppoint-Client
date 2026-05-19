@@ -21,24 +21,48 @@ export default function LoginClient() {
     setLoading(true);
     try {
       const res = await signIn.email({ email, password: pass, callbackURL: redirect });
-      if (res?.error) { setErr(res.error.message || "Invalid email or password."); }
-      else {
-        // issue JWT cookie
-        await authApi.getJwt(email);
-        toast.success(`Welcome back!`);
-        router.push(redirect);
-        router.refresh();
+
+      // Better Auth returns error inside res.error — NOT by throwing
+      if (res?.error) {
+        setErr(res.error.message || "Invalid email or password.");
+        setLoading(false);
+        return; // ← explicit return, never reaches getJwt on failure
       }
-    } catch { setErr("An error occurred. Please try again."); }
-    finally { setLoading(false); }
+
+      // ✅ Only reaches here on successful login
+      try {
+        await authApi.getJwt(email); // sets httpOnly JWT cookie from Express
+      } catch {
+        // JWT issue failed — log but don't block the user
+        console.error("JWT exchange failed — appointments may not work.");
+      }
+
+      toast.success("Welcome back!");
+      router.push(redirect);
+      router.refresh();
+
+    } catch (e: any) {
+      // signIn.email itself threw — wrong password, network error, etc.
+      const msg = e?.message || "";
+      if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("credentials")) {
+        setErr("Invalid email or password.");
+      } else {
+        setErr("An error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogle = async () => {
     setLoading(true);
     try {
       await signIn.social({ provider: "google", callbackURL: redirect });
-      // Google redirects away — getJwt is handled in DashboardClient
-    } catch { toast.error("Google sign-in failed."); setLoading(false); }
+      // Google redirects away — JWT is issued in DashboardClient after redirect
+    } catch {
+      toast.error("Google sign-in failed.");
+      setLoading(false);
+    }
   };
 
   return (
