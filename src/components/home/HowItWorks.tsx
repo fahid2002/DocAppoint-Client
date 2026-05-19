@@ -1,3 +1,4 @@
+"use client";
 export default function HowItWorks() {
   const steps = [
     { n: 1, icon: "ti-search", cls: "ico-blue", title: "Find a doctor", desc: "Search by specialty, location, or name. Read real patient reviews to make an informed choice." },

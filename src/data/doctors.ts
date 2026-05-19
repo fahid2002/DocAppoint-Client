@@ -115,8 +115,8 @@ export const DOCTORS: Doctor[] = [
 
 export const DOCTOR_REVIEWS: Record<string, { av: string; name: string; stars: string; text: string }[]> = {
   d1: [
-    { av: "RU", name: "Rahim Uddin", stars: "★★★★★", text: "Extremely thorough and caring. She diagnosed my condition swiftly and explained everything clearly. Seamless booking experience." },
-    { av: "NK", name: "Nadia Karim", stars: "★★★★☆", text: "Very professional and knowledgeable. Minimal waiting time and the consultation was comprehensive and reassuring." },
+    { av: "RU", name: "Mr. Ifty", stars: "★★★★★", text: "Extremely thorough and caring. She diagnosed my condition swiftly and explained everything clearly. Seamless booking experience." },
+    { av: "NK", name: "Marufa Sultana Moon", stars: "★★★★☆", text: "Very professional and knowledgeable. Minimal waiting time and the consultation was comprehensive and reassuring." },
   ],
   d2: [{ av: "MH", name: "Mahmudul Hasan", stars: "★★★★★", text: "Dr. Tanvir is brilliant. He identified my issue within minutes and the treatment plan was spot on. Highly recommend." }],
   d3: [{ av: "AS", name: "Ayesha Siddiqui", stars: "★★★★★", text: "Wonderful with children. My son was at ease immediately. Dr. Sadia explained everything to us as parents very clearly." }],

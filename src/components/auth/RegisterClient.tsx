@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUp, signIn } from "@/libs/auth-client";
@@ -12,9 +12,12 @@ function validatePass(v: string) {
 export default function RegisterClient() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", photo: "", pass: "" });
+  const [photoName, setPhotoName] = useState("");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [err, setErr] = useState("");
   const [passErr, setPassErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const checkPass = (v: string) => {
     if (v.length > 0 && !validatePass(v)) {
@@ -29,9 +32,20 @@ export default function RegisterClient() {
     if (!validatePass(form.pass)) { setErr("Password must have uppercase, lowercase and 6+ characters."); return; }
     setLoading(true);
     try {
-      const res = await signUp.email({ name: form.name, email: form.email, password: form.pass, image: form.photo || undefined, callbackURL: "/" });
-      if (res?.error) { setErr(res.error.message || "Registration failed."); }
-      else { toast.success(`Account created! Welcome, ${form.name.split(" ")[0]}!`); router.push("/login"); }
+      const res = await signUp.email({
+        name: form.name,
+        email: form.email,
+        password: form.pass,
+        image: form.photo || undefined,
+        callbackURL: "/",
+      });
+      if (res?.error) {
+        console.error("Signup error:", res.error);
+        setErr(res.error.message || JSON.stringify(res.error) || "Registration failed.");
+      } else {
+        toast.success(`Account created! Welcome, ${form.name.split(" ")[0]}!`);
+        router.push("/login");
+      }
     } catch { setErr("An error occurred. Please try again."); }
     finally { setLoading(false); }
   };
@@ -63,9 +77,60 @@ export default function RegisterClient() {
           <div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />or use email<div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />
         </div>
 
-        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Full name</label><input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Rahim Uddin" /></div>
-        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Email address</label><input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="you@example.com" /></div>
-        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Photo URL (optional)</label><input value={form.photo} onChange={e => setForm(p => ({ ...p, photo: e.target.value }))} placeholder="https://example.com/photo.jpg" /></div>
+        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Full name</label><input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Fahid Hasan" /></div>
+        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Email address</label><input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="fahid@gmail.com" /></div>
+        <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
+          <label>Photo (optional)</label>
+          <div
+            role="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
+              width: "100%",
+              minHeight: 44,
+              padding: "0 0.9rem",
+              border: "1px solid var(--bdr)",
+              borderRadius: "var(--r-sm)",
+              background: "var(--card)",
+              color: "var(--tx)",
+              cursor: "pointer",
+            }}
+          >
+            <span style={{ flex: 1, fontSize: 13, color: photoName ? "var(--tx)" : "var(--tx3)" }}>
+              {photoName || "Click to browse image file"}
+            </span>
+            <span style={{ fontSize: 12, color: "var(--tx3)" }}>Browse</span>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            aria-label="Choose profile photo"
+            style={{ display: "none" }}
+            onChange={e => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setPhotoName(file.name);
+              const reader = new FileReader();
+              reader.onload = () => {
+                const result = reader.result;
+                if (typeof result === "string") {
+                  setForm(p => ({ ...p, photo: result }));
+                  setPhotoPreview(result);
+                }
+              };
+              reader.readAsDataURL(file);
+            }}
+          />
+          {photoPreview && (
+            <div style={{ marginTop: "0.75rem", width: "100%", borderRadius: "0.75rem", overflow: "hidden", border: "1px solid var(--bdr)" }}>
+              <img src={photoPreview} alt="Selected photo preview" style={{ width: "100%", display: "block" }} />
+            </div>
+          )}
+        </div>
         <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
           <label>Password</label>
           <input type="password" value={form.pass} onChange={e => { setForm(p => ({ ...p, pass: e.target.value })); checkPass(e.target.value); }} placeholder="Min 6 chars, upper & lowercase" />

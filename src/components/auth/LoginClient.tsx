@@ -58,7 +58,7 @@ export default function LoginClient() {
 
         <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
           <label>Email address</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} placeholder="you@example.com" />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} placeholder="fahid@gmail.com" />
         </div>
         <div className="auth-field" style={{ marginBottom: "0.5rem" }}>
           <label>Password</label>

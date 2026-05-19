@@ -357,11 +357,11 @@ export default function Footer() {
             <form ref={formRef} onSubmit={handleContact} style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
               <div className="auth-field">
                 <label>Your Name</label>
-                <input name="from_name" required placeholder="Rahim Uddin" />
+                <input name="from_name" required placeholder="Fahid Hasan" />
               </div>
               <div className="auth-field">
                 <label>Email Address</label>
-                <input name="from_email" type="email" required placeholder="you@example.com" />
+                <input name="from_email" type="email" required placeholder="fahid@gmail.com" />
               </div>
               <div className="auth-field">
                 <label>Subject</label>

@@ -1,7 +1,6 @@
 @import "tailwindcss";
-
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap");
-@import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css");
+/* @import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"); */
 
 /* ═══════════════════════════════════════════
    CSS VARIABLES — LIGHT THEME
@@ -88,7 +87,9 @@ body {
   color: var(--tx);
   overflow-x: hidden;
   min-height: 100vh;
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
 }
 
 ::-webkit-scrollbar {
@@ -179,7 +180,9 @@ img {
   border-radius: var(--r-md);
   color: var(--tx2);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   white-space: nowrap;
 }
 
@@ -325,8 +328,17 @@ img {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 50% 70% at 5% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
-    radial-gradient(ellipse 30% 40% at 95% 10%, rgba(29, 158, 117, 0.12) 0%, transparent 60%);
+  background:
+    radial-gradient(
+      ellipse 50% 70% at 5% 50%,
+      rgba(255, 255, 255, 0.04) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 30% 40% at 95% 10%,
+      rgba(29, 158, 117, 0.12) 0%,
+      transparent 60%
+    );
 }
 
 /* ═══════════════════════════════════════════
@@ -364,7 +376,9 @@ img {
   border: 1px solid var(--card-bdr);
   border-radius: var(--r-xl);
   overflow: hidden;
-  transition: transform 0.28s, box-shadow 0.28s;
+  transition:
+    transform 0.28s,
+    box-shadow 0.28s;
   cursor: pointer;
 }
 
@@ -562,7 +576,9 @@ footer {
   border: 1.5px solid var(--bdr);
   background: var(--bg3);
   color: var(--tx);
-  transition: border 0.2s, background 0.2s;
+  transition:
+    border 0.2s,
+    background 0.2s;
   outline: none;
   width: 100%;
 }
@@ -660,7 +676,9 @@ footer {
   border-radius: var(--r-lg);
   background: var(--card);
   margin-bottom: 0.7rem;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .appt-card:hover {

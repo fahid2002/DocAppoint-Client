@@ -1,7 +1,9 @@
+"use client";
+
 export default function Testimonials() {
   const tests = [
-    { av: "RU", name: "Rahim Uddin", role: "Patient · Dhaka", stars: "★★★★★", text: "Booking was incredibly smooth. Found the perfect cardiologist within minutes. The whole experience was outstanding — from search to confirmation. Highly recommended!" },
-    { av: "NK", name: "Nadia Karim", role: "Patient · Chittagong", stars: "★★★★★", text: "Found an excellent pediatrician for my son within minutes. The process was transparent and the appointment was confirmed instantly. DocAppoint is now my go-to!" },
+    { av: "RU", name: "Mr. Ifty", role: "Patient · Dhaka", stars: "★★★★★", text: "Booking was incredibly smooth. Found the perfect cardiologist within minutes. The whole experience was outstanding — from search to confirmation. Highly recommended!" },
+    { av: "NK", name: "Marufa Sultana Moon", role: "Patient · Chittagong", stars: "★★★★★", text: "Found an excellent pediatrician for my son within minutes. The process was transparent and the appointment was confirmed instantly. DocAppoint is now my go-to!" },
   ];
   return (
     <div style={{ padding: "5rem 0" }}>
