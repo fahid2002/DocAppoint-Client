@@ -50,3 +50,9 @@ export const authApi = {
     return res;
   },
 };
+
+export const reviewsApi = {
+  getByDoctor: (doctorId: string) => api.get(`/reviews/${doctorId}`),
+  create: (data: { doctorId: string; rating: number; text: string; userName: string }) =>
+    api.post("/reviews", data),
+};
