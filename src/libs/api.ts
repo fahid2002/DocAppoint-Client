@@ -7,12 +7,16 @@ export const api = axios.create({
   withCredentials: true, // ✅ sends cookie automatically on every request
 });
 
-// ✅ Response interceptor — handle 401 globally (token expired / not logged in)
+// ✅ Response interceptor — only redirect on 401 if not an auth call + not already on login page
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      window.location.href = "/login"; // redirect to login on auth failure
+    const is401 = error.response?.status === 401;
+    const isAuthEndpoint = error.config?.url?.includes("/auth/");
+    const isLoginPage = typeof window !== "undefined" && window.location.pathname.startsWith("/login");
+
+    if (is401 && !isAuthEndpoint && !isLoginPage) {
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }

@@ -67,13 +67,23 @@ export default function DashboardClient() {
 
   // ✅ Fix: fetch bookings only after JWT is issued
   useEffect(() => {
-    if (!user?.email || !jwtIssued.current) return;
+  if (!user?.email) return;
+
+  const fetchBookings = async () => {
     setLoading(true);
-    appointmentsApi.getByUser(user.email)
-      .then(res => setBookings(res.data))
-      .catch(() => setBookings([]))
-      .finally(() => setLoading(false));
-  }, [user]);
+    try {
+      await authApi.getJwt(user.email);
+      const res = await appointmentsApi.getByUser(user.email);
+      setBookings(res.data);
+    } catch {
+      setBookings([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchBookings();
+}, [user]);
 
   const handleDelete = async (id: string) => {
     try {
