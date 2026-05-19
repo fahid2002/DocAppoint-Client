@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "@/libs/auth-client";
 import { useRouter } from "next/navigation";
-import { appointmentsApi } from "@/libs/api";
+import { appointmentsApi, authApi } from "@/libs/api"; 
 import toast from "react-hot-toast";
 import Image from "next/image";
 
@@ -47,7 +47,9 @@ export default function DashboardClient() {
   useEffect(() => {
     if (!user?.email) return;
     setLoading(true);
-    appointmentsApi.getByUser(user.email)
+
+    authApi.getJwt(user.email)
+      .then(() => appointmentsApi.getByUser(user.email))
       .then(res => setBookings(res.data))
       .catch(() => setBookings([]))
       .finally(() => setLoading(false));
@@ -86,7 +88,6 @@ export default function DashboardClient() {
   const handleProfileUpdate = async () => {
     setSaving(true);
     try {
-      // Update via better-auth user update endpoint
       await fetch("/api/auth/update-user", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: profileForm.name, image: profileForm.photo }) });
       toast.success("Profile updated successfully!");
       setProfileModal(false);

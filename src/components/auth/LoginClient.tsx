@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/libs/auth-client";
+import { authApi } from "@/libs/api";
 import toast from "react-hot-toast";
 
 export default function LoginClient() {
@@ -20,8 +21,14 @@ export default function LoginClient() {
     setLoading(true);
     try {
       const res = await signIn.email({ email, password: pass, callbackURL: redirect });
-      if (res?.error) { setErr(res.error.message || "Invalid email or password."); } 
-      else { toast.success(`Welcome back!`); router.push(redirect); router.refresh(); }
+      if (res?.error) { setErr(res.error.message || "Invalid email or password."); }
+      else {
+        // issue JWT cookie
+        await authApi.getJwt(email);
+        toast.success(`Welcome back!`);
+        router.push(redirect);
+        router.refresh();
+      }
     } catch { setErr("An error occurred. Please try again."); }
     finally { setLoading(false); }
   };
@@ -30,6 +37,7 @@ export default function LoginClient() {
     setLoading(true);
     try {
       await signIn.social({ provider: "google", callbackURL: redirect });
+      // Google redirects away — getJwt is handled in DashboardClient
     } catch { toast.error("Google sign-in failed."); setLoading(false); }
   };
 
