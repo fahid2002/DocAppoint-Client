@@ -3,13 +3,14 @@ import { useState } from "react";
 import Image from "next/image";
 import { useSession } from "@/libs/auth-client";
 import { useRouter } from "next/navigation";
-import { appointmentsApi } from "@/libs/api";
+import { appointmentsApi, authApi } from "@/libs/api";
 import { DOCTOR_REVIEWS } from "@/data/doctors";
 import type { Doctor } from "@/data/doctors";
 import toast from "react-hot-toast";
 
 export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
-  const { data: session } = useSession();
+
+  const { data: session, isPending } = useSession();
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ patientName: "", gender: "Male", phone: "", appointmentDate: "", appointmentTime: doc.times[0] || "" });
@@ -19,14 +20,18 @@ export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
   const stars = (r: number) => "★".repeat(Math.round(r)) + "☆".repeat(5 - Math.round(r));
 
   const openBook = () => {
-    if (!session?.user) { router.push("/login"); return; }
-    setModalOpen(true);
-  };
+  if (isPending) return;
+  if (!session?.user) { router.push("/login"); return; }
+  setModalOpen(true);
+};
 
   const handleBook = async () => {
     if (!form.patientName || !form.phone || !form.appointmentDate) { toast.error("Please fill all required fields."); return; }
     setSaving(true);
     try {
+      if (session?.user?.email) {
+      await authApi.getJwt(session.user.email).catch(() => {});
+    }
       await appointmentsApi.create({
         userEmail: session!.user.email,
         doctorId: doc.id,
