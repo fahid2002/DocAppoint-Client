@@ -38,25 +38,22 @@ export default function DashboardClient() {
   const [profileForm, setProfileForm] = useState({ name: "", photo: "" });
   const [saving, setSaving] = useState(false);
 
-  // ✅ Fix 3: prevent double JWT call (email login + Google redirect both handled here)
-  const jwtIssued = useRef(false);
+  // ✅ Local profile state — updates instantly without page refresh
+  const [localUser, setLocalUser] = useState<{ name: string; image: string } | null>(null);
 
+  const jwtIssued = useRef(false);
   const user = session?.user;
 
-  // ✅ Fix: single unified effect — guards redirect until session resolves,
-  //         issues JWT once for both email and Google login flows
-  useEffect(() => {
-    if (isPending) return; // ← don't do anything while session is still loading
+  // ✅ Use localUser if available, otherwise fall back to session user
+  const displayName = localUser?.name ?? user?.name ?? "";
+  const displayImage = localUser?.image ?? user?.image ?? "";
 
+  useEffect(() => {
+    if (isPending) return;
     if (!user) {
-      // session fully loaded and no user — redirect to login
       router.push("/login?redirect=/dashboard");
       return;
     }
-
-    // session loaded and user exists — issue JWT once
-    // handles Google redirect case (email login already called it, but
-    // jwtIssued.current prevents the double call)
     if (!jwtIssued.current && user.email) {
       jwtIssued.current = true;
       authApi.getJwt(user.email).catch(() => {
@@ -65,25 +62,22 @@ export default function DashboardClient() {
     }
   }, [isPending, user, router]);
 
-  // ✅ Fix: fetch bookings only after JWT is issued
   useEffect(() => {
-  if (!user?.email) return;
-
-  const fetchBookings = async () => {
-    setLoading(true);
-    try {
-      await authApi.getJwt(user.email);
-      const res = await appointmentsApi.getByUser(user.email);
-      setBookings(res.data);
-    } catch {
-      setBookings([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchBookings();
-}, [user]);
+    if (!user?.email) return;
+    const fetchBookings = async () => {
+      setLoading(true);
+      try {
+        await authApi.getJwt(user.email);
+        const res = await appointmentsApi.getByUser(user.email);
+        setBookings(res.data);
+      } catch {
+        setBookings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
+  }, [user]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -111,22 +105,32 @@ export default function DashboardClient() {
   };
 
   const openProfile = () => {
-    setProfileForm({ name: user?.name || "", photo: user?.image || "" });
+    setProfileForm({ name: displayName, photo: displayImage });
     setProfileModal(true);
   };
 
   const handleProfileUpdate = async () => {
+    if (!profileForm.name.trim()) { toast.error("Name cannot be empty."); return; }
     setSaving(true);
     try {
-      await fetch("/api/auth/update-user", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: profileForm.name, image: profileForm.photo }) });
-      toast.success("Profile updated successfully!");
+      const res = await fetch("/api/auth/update-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: profileForm.name, image: profileForm.photo }),
+      });
+      if (!res.ok) throw new Error("Failed");
+
+      // ✅ Instantly update UI — no page refresh needed
+      setLocalUser({ name: profileForm.name, image: profileForm.photo });
       setProfileModal(false);
-      router.refresh();
-    } catch { toast.error("Failed to update profile."); }
-    finally { setSaving(false); }
+      toast.success("Profile updated successfully!");
+    } catch {
+      toast.error("Failed to update profile.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // ✅ Fix: show spinner while session is loading — never redirect prematurely
   if (isPending) return <div className="spinner"><div className="spin-anim" />Loading…</div>;
   if (!user) return null;
 
@@ -139,10 +143,10 @@ export default function DashboardClient() {
         <div style={{ textAlign: "center", paddingBottom: "1.1rem", marginBottom: "0.9rem", borderBottom: "1px solid var(--bdr)" }}>
           <div style={{ width: 60, height: 60, borderRadius: "50%", background: "var(--grad-acc)", padding: 3, margin: "0 auto 0.65rem" }}>
             <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "var(--bg3)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Sora, sans-serif", fontSize: 18, fontWeight: 800, color: "var(--p)", overflow: "hidden" }}>
-              {user.image ? <Image src={user.image} alt={user.name || ""} width={54} height={54} style={{ objectFit: "cover", borderRadius: "50%" }} /> : initials(user.name || "U")}
+              {displayImage ? <Image src={displayImage} alt={displayName} width={54} height={54} style={{ objectFit: "cover", borderRadius: "50%" }} /> : initials(displayName || "U")}
             </div>
           </div>
-          <div style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700, color: "var(--tx)", marginBottom: 2 }}>{user.name}</div>
+          <div style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700, color: "var(--tx)", marginBottom: 2 }}>{displayName}</div>
           <div style={{ fontSize: 11, color: "var(--tx3)", wordBreak: "break-all" }}>{user.email}</div>
         </div>
         {[
@@ -201,12 +205,12 @@ export default function DashboardClient() {
             <div style={{ background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-xl)", padding: "2rem", maxWidth: 340, textAlign: "center", boxShadow: "var(--shadow-sm)" }}>
               <div style={{ width: 84, height: 84, borderRadius: "50%", background: "var(--grad-acc)", padding: 3, margin: "0 auto 0.85rem" }}>
                 <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "var(--bg2)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Sora, sans-serif", fontSize: 28, fontWeight: 900, color: "var(--p)", overflow: "hidden" }}>
-                  {user.image ? <Image src={user.image} alt={user.name || ""} width={78} height={78} style={{ objectFit: "cover", borderRadius: "50%" }} /> : initials(user.name || "U")}
+                  {displayImage ? <Image src={displayImage} alt={displayName} width={78} height={78} style={{ objectFit: "cover", borderRadius: "50%" }} /> : initials(displayName || "U")}
                 </div>
               </div>
-              <div style={{ fontFamily: "Sora, sans-serif", fontSize: 18, fontWeight: 800, color: "var(--tx)", marginBottom: 3 }}>{user.name}</div>
+              <div style={{ fontFamily: "Sora, sans-serif", fontSize: 18, fontWeight: 800, color: "var(--tx)", marginBottom: 3 }}>{displayName}</div>
               <div style={{ fontSize: 12.5, color: "var(--tx3)", marginBottom: "1.3rem" }}>{user.email}</div>
-              {[{ k: "Name", v: user.name }, { k: "Email", v: user.email }, { k: "Member since", v: memberSince }].map(r => (
+              {[{ k: "Name", v: displayName }, { k: "Email", v: user.email }, { k: "Member since", v: memberSince }].map(r => (
                 <div key={r.k} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: "1px solid var(--bdr)", fontSize: 13.5 }}>
                   <span style={{ color: "var(--tx3)", fontWeight: 500 }}>{r.k}</span>
                   <span style={{ fontWeight: 700, color: "var(--tx)", fontFamily: "Sora, sans-serif", fontSize: r.k === "Email" ? 12 : undefined }}>{r.v}</span>
