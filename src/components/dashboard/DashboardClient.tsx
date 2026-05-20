@@ -37,28 +37,23 @@ export default function DashboardClient() {
   const [editForm, setEditForm] = useState({ patientName: "", gender: "", phone: "", appointmentDate: "", appointmentTime: "" });
   const [profileForm, setProfileForm] = useState({ name: "", photo: "" });
   const [saving, setSaving] = useState(false);
+  const [photoName, setPhotoName] = useState(""); // ✅ file name display
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null); // ✅ preview
+  const photoInputRef = useRef<HTMLInputElement | null>(null); // ✅ file input ref
 
-  // ✅ Local profile state — updates instantly without page refresh
   const [localUser, setLocalUser] = useState<{ name: string; image: string } | null>(null);
-
   const jwtIssued = useRef(false);
   const user = session?.user;
 
-  // ✅ Use localUser if available, otherwise fall back to session user
   const displayName = localUser?.name ?? user?.name ?? "";
   const displayImage = localUser?.image ?? user?.image ?? "";
 
   useEffect(() => {
     if (isPending) return;
-    if (!user) {
-      router.push("/login?redirect=/dashboard");
-      return;
-    }
+    if (!user) { router.push("/login?redirect=/dashboard"); return; }
     if (!jwtIssued.current && user.email) {
       jwtIssued.current = true;
-      authApi.getJwt(user.email).catch(() => {
-        console.error("JWT exchange failed — appointments may not work.");
-      });
+      authApi.getJwt(user.email).catch(() => console.error("JWT exchange failed."));
     }
   }, [isPending, user, router]);
 
@@ -70,11 +65,8 @@ export default function DashboardClient() {
         await authApi.getJwt(user.email);
         const res = await appointmentsApi.getByUser(user.email);
         setBookings(res.data);
-      } catch {
-        setBookings([]);
-      } finally {
-        setLoading(false);
-      }
+      } catch { setBookings([]); }
+      finally { setLoading(false); }
     };
     fetchBookings();
   }, [user]);
@@ -106,7 +98,25 @@ export default function DashboardClient() {
 
   const openProfile = () => {
     setProfileForm({ name: displayName, photo: displayImage });
+    setPhotoName("");
+    setPhotoPreview(displayImage || null);
     setProfileModal(true);
+  };
+
+  // ✅ handle file selection
+  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === "string") {
+        setProfileForm(p => ({ ...p, photo: result }));
+        setPhotoPreview(result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleProfileUpdate = async () => {
@@ -119,16 +129,11 @@ export default function DashboardClient() {
         body: JSON.stringify({ name: profileForm.name, image: profileForm.photo }),
       });
       if (!res.ok) throw new Error("Failed");
-
-      // ✅ Instantly update UI — no page refresh needed
       setLocalUser({ name: profileForm.name, image: profileForm.photo });
       setProfileModal(false);
       toast.success("Profile updated successfully!");
-    } catch {
-      toast.error("Failed to update profile.");
-    } finally {
-      setSaving(false);
-    }
+    } catch { toast.error("Failed to update profile."); }
+    finally { setSaving(false); }
   };
 
   if (isPending) return <div className="spinner"><div className="spin-anim" />Loading…</div>;
@@ -270,8 +275,55 @@ export default function DashboardClient() {
               </h3>
               <button onClick={() => setProfileModal(false)} style={{ width: 32, height: 32, borderRadius: "var(--r-md)", border: "1.5px solid var(--bdr)", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--tx3)" }}><i className="ti ti-x" /></button>
             </div>
-            <div className="auth-field" style={{ marginBottom: "0.75rem" }}><label>Full name</label><input value={profileForm.name} onChange={e => setProfileForm(p => ({ ...p, name: e.target.value }))} placeholder="Your full name" /></div>
-            <div className="auth-field" style={{ marginBottom: "0.75rem" }}><label>Photo URL</label><input value={profileForm.photo} onChange={e => setProfileForm(p => ({ ...p, photo: e.target.value }))} placeholder="https://example.com/photo.jpg" /></div>
+
+            {/* Full name */}
+            <div className="auth-field" style={{ marginBottom: "0.75rem" }}>
+              <label>Full name</label>
+              <input value={profileForm.name} onChange={e => setProfileForm(p => ({ ...p, name: e.target.value }))} placeholder="Your full name" />
+            </div>
+
+            {/* ✅ Photo — browse button + URL input */}
+            <div className="auth-field" style={{ marginBottom: "0.75rem" }}>
+              <label>Profile photo</label>
+
+              {/* Browse button */}
+              <div
+                role="button"
+                onClick={() => photoInputRef.current?.click()}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", minHeight: 44, padding: "0 0.9rem", border: "1px solid var(--bdr)", borderRadius: "var(--r-sm)", background: "var(--card)", color: "var(--tx)", cursor: "pointer", marginBottom: "0.5rem" }}
+              >
+                <span style={{ flex: 1, fontSize: 13, color: photoName ? "var(--tx)" : "var(--tx3)" }}>
+                  {photoName || "Click to browse image file"}
+                </span>
+                <span style={{ fontSize: 12, color: "var(--tx3)" }}>Browse</span>
+              </div>
+              <input ref={photoInputRef} type="file" accept="image/*" aria-label="Choose profile photo" style={{ display: "none" }} onChange={handlePhotoFile} />
+
+              {/* OR divider */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0.5rem 0", fontSize: 11, color: "var(--tx3)" }}>
+                <div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />or paste a URL<div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />
+              </div>
+
+              {/* URL input */}
+              <input
+                value={photoName ? "" : profileForm.photo}
+                onChange={e => {
+                  setPhotoName("");
+                  setPhotoPreview(e.target.value || null);
+                  setProfileForm(p => ({ ...p, photo: e.target.value }));
+                }}
+                placeholder="https://example.com/photo.jpg"
+                style={{ width: "100%", fontSize: 13, padding: "10px 13px", borderRadius: "var(--r-sm)", border: "1px solid var(--bdr)", background: "var(--card)", color: "var(--tx)", outline: "none" }}
+              />
+
+              {/* Preview */}
+              {photoPreview && (
+                <div style={{ marginTop: "0.75rem", width: 72, height: 72, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--bdr)", margin: "0.75rem auto 0" }}>
+                  <img src={photoPreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+              )}
+            </div>
+
             <button onClick={handleProfileUpdate} disabled={saving} className="btn btn-primary" style={{ width: "100%", padding: 12, fontSize: 14, marginTop: "0.3rem" }}>
               <i className="ti ti-circle-check" />{saving ? "Saving…" : "Save changes"}
             </button>
