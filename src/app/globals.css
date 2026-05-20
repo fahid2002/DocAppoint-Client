@@ -852,3 +852,57 @@ footer {
     gap: 1.2rem !important;
   }
 }
+
+/* ═══════════════════════════════════════════
+   HERO CARD DARK MODE
+═══════════════════════════════════════════ */
+.hero-card-desktop {
+  background: rgba(255,255,255,0.97);
+}
+
+.dark .hero-card-desktop {
+  background: rgba(22, 27, 39, 0.95) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important;
+}
+
+.hero-card-desktop .card-name { color: #0a0f1e; }
+.dark .hero-card-desktop .card-name { color: #e8edf5; }
+
+.hero-card-desktop .card-specialty { color: #185fa5; }
+.dark .hero-card-desktop .card-specialty { color: #9fe1cb; }
+
+.hero-card-desktop .card-label { color: #8896a8; }
+.dark .hero-card-desktop .card-label { color: #9aacbf; }
+
+.hero-card-desktop .card-fee { color: #185fa5; }
+.dark .hero-card-desktop .card-fee { color: #e8edf5; }
+
+.hero-card-desktop .card-fee-small { color: #8896a8; }
+.dark .hero-card-desktop .card-fee-small { color: #9aacbf; }
+
+.hero-card-desktop .card-slot-green { background: #eaf3de; color: #3b6d11; }
+.dark .hero-card-desktop .card-slot-green { background: rgba(8,80,65,0.5); color: #9fe1cb; }
+
+.hero-card-desktop .card-slot-blue { background: #e6f1fb; color: #0c447c; }
+.dark .hero-card-desktop .card-slot-blue { background: rgba(24,95,165,0.3); color: #b5d4f4; }
+
+.hero-card-desktop .card-available { background: #eaf3de; color: #3b6d11; }
+.dark .hero-card-desktop .card-available { background: rgba(8,80,65,0.5); color: #9fe1cb; }
+
+.hero-card-desktop .card-bottom { background: #f4f7fb; border: 1px solid rgba(0,0,0,0.06); }
+.dark .hero-card-desktop .card-bottom { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); }
+
+.hero-card-desktop .card-bottom-icon { background: #e6f1fb; color: #185fa5; }
+.dark .hero-card-desktop .card-bottom-icon { background: rgba(24,95,165,0.2); color: #b5d4f4; }
+
+.hero-card-desktop .card-bottom-title { color: #0a0f1e; }
+.dark .hero-card-desktop .card-bottom-title { color: #e8edf5; }
+
+.hero-card-desktop .card-bottom-sub { color: #8896a8; }
+.dark .hero-card-desktop .card-bottom-sub { color: #9aacbf; }
+
+.hero-card-desktop .card-divider { border-bottom: 1px solid rgba(0,0,0,0.06); }
+.dark .hero-card-desktop .card-divider { border-bottom: 1px solid rgba(255,255,255,0.08); }
+
+.hero-card-desktop .card-avatar { background: #e6f1fb; }
+.dark .hero-card-desktop .card-avatar { background: rgba(24,95,165,0.2); }

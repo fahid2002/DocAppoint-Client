@@ -28,7 +28,7 @@ export default function SpecialtySection() {
               className={`spec-chip${active === s.label ? " on" : ""}`}
               onClick={() => handle(s.label)}
             >
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: active === s.label ? "rgba(255,255,255,0.2)" : "var(--p3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 0.5rem", fontSize: 17, color: active === s.label ? "#fff" : "var(--p)", transition: "all 0.22s" }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: active === s.label ? "rgba(255,255,255,0.2)" : "rgba(24,95,165,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 0.5rem", fontSize: 17, color: active === s.label ? "#fff" : "var(--p)", transition: "all 0.22s" }}>
                 <i className={`ti ${s.icon}`} aria-hidden="true" />
               </div>
               <div style={{ fontFamily: "Sora, sans-serif", fontSize: 10.5, fontWeight: 600, color: active === s.label ? "#fff" : "var(--tx2)", transition: "color 0.22s" }}>

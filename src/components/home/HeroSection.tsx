@@ -158,30 +158,29 @@ export default function HeroSection() {
         <div
           className="hero-card-desktop"
           style={{
-            background: "rgba(255,255,255,0.97)",
             borderRadius: "var(--r-lg)",
             padding: "1.1rem",
             boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
           }}
         >
           <div
+            className="card-divider"
             style={{
               display: "flex",
               alignItems: "center",
               gap: 10,
               marginBottom: "0.8rem",
               paddingBottom: "0.8rem",
-              borderBottom: "1px solid rgba(0,0,0,0.06)",
             }}
           >
             <div
+              className="card-avatar"
               style={{
                 width: 50,
                 height: 50,
                 borderRadius: 11,
                 overflow: "hidden",
                 flexShrink: 0,
-                background: "var(--p3)",
               }}
             >
               <Image
@@ -194,16 +193,16 @@ export default function HeroSection() {
             </div>
             <div>
               <div
+                className="card-name"
                 style={{
                   fontFamily: "Sora, sans-serif",
                   fontSize: 13,
                   fontWeight: 700,
-                  color: "var(--tx)",
                 }}
               >
                 Dr. Ayesha Rahman
               </div>
-              <div style={{ fontSize: 11, color: "var(--p)", fontWeight: 600 }}>
+              <div className="card-specialty" style={{ fontSize: 11, fontWeight: 600 }}>
                 Cardiologist · BMDC Verified
               </div>
               <div style={{ color: "#BA7517", fontSize: 12 }}>★★★★★ 4.9</div>
@@ -211,10 +210,10 @@ export default function HeroSection() {
           </div>
 
           <div
+            className="card-label"
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: "var(--tx3)",
               marginBottom: "0.45rem",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
@@ -224,13 +223,12 @@ export default function HeroSection() {
           </div>
           <div style={{ display: "flex", gap: 5, marginBottom: "0.7rem" }}>
             <span
+              className="card-slot-green"
               style={{
                 fontSize: 11,
                 fontWeight: 600,
                 padding: "4px 10px",
                 borderRadius: 6,
-                background: "var(--green-bg)",
-                color: "var(--green-tx)",
                 display: "flex",
                 alignItems: "center",
                 gap: 4,
@@ -240,13 +238,12 @@ export default function HeroSection() {
               Today 9:00 AM
             </span>
             <span
+              className="card-slot-blue"
               style={{
                 fontSize: 11,
                 fontWeight: 600,
                 padding: "4px 10px",
                 borderRadius: 6,
-                background: "var(--p3)",
-                color: "var(--p2)",
               }}
             >
               4:00 PM
@@ -255,17 +252,18 @@ export default function HeroSection() {
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div
+              className="card-fee"
               style={{
                 fontFamily: "Sora, sans-serif",
                 fontSize: 17,
                 fontWeight: 800,
-                color: "var(--p)",
               }}
             >
               ৳800{" "}
-              <small style={{ fontSize: 10, color: "var(--tx3)", fontWeight: 400 }}>/visit</small>
+              <small className="card-fee-small" style={{ fontSize: 10, fontWeight: 400 }}>/visit</small>
             </div>
             <div
+              className="card-available"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -274,8 +272,6 @@ export default function HeroSection() {
                 fontWeight: 700,
                 padding: "3px 9px",
                 borderRadius: 5,
-                background: "var(--green-bg)",
-                color: "var(--green-tx)",
               }}
             >
               <div className="pulse" />
@@ -284,9 +280,8 @@ export default function HeroSection() {
           </div>
 
           <div
+            className="card-bottom"
             style={{
-              background: "rgba(255,255,255,0.09)",
-              border: "1px solid rgba(255,255,255,0.12)",
               borderRadius: 10,
               padding: "0.65rem 0.85rem",
               marginTop: "0.75rem",
@@ -296,33 +291,31 @@ export default function HeroSection() {
             }}
           >
             <div
+              className="card-bottom-icon"
               style={{
                 width: 34,
                 height: 34,
                 borderRadius: 8,
-                background: "rgba(24,95,165,0.08)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 16,
-                color: "var(--p)",
                 flexShrink: 0,
               }}
             >
               <i className="ti ti-calendar" aria-hidden="true" />
             </div>
             <div>
-              <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--tx)" }}>
+              <div className="card-bottom-title" style={{ fontSize: 11.5, fontWeight: 700 }}>
                 15,000+ bookings this month
               </div>
-              <div style={{ fontSize: 10, color: "var(--tx3)" }}>
+              <div className="card-bottom-sub" style={{ fontSize: 10 }}>
                 Verified &amp; confirmed appointments
               </div>
             </div>
           </div>
         </div>
       </div>
-
       <style>{`
         @media (max-width: 900px) {
           .hero-inner-grid {
