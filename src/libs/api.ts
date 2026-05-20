@@ -56,3 +56,8 @@ export const reviewsApi = {
   create: (data: { doctorId: string; rating: number; text: string; userName: string }) =>
     api.post("/reviews", data),
 };
+
+export const doctorsApi = {
+  getAll: () => api.get("/doctors"),
+  getById: (id: string) => api.get(`/doctors/${id}`),
+};

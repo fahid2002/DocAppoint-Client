@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { DOCTORS } from "@/data/doctors";
-import type { Doctor } from "@/data/doctors";
+import { useSearchParams } from "next/navigation";
+import { doctorsApi } from "@/libs/api"; // ✅ fetch from API
+import type { Doctor } from "@/data/doctors"; // ✅ keep type only
 import DoctorCard from "./DoctorCard";
 
 const SPECIALTIES = ["Cardiologist", "Neurologist", "Pediatrician", "Dermatologist", "Orthopedic", "Ophthalmologist", "Pulmonologist", "General"];
@@ -10,28 +10,35 @@ const PILLS = ["All", "Cardiologist", "Neurologist", "Pediatrician", "Dermatolog
 
 export default function AppointmentsClient() {
   const params = useSearchParams();
-  const router = useRouter();
 
   const [search, setSearch] = useState(params.get("q") || "");
   const [specialty, setSpecialty] = useState(params.get("specialty") || "");
   const [sort, setSort] = useState("");
   const [loading, setLoading] = useState(true);
-  const [docs, setDocs] = useState<Doctor[]>([]);
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]); // ✅ raw data from API
+  const [docs, setDocs] = useState<Doctor[]>([]);             // ✅ filtered results
 
+  // ✅ fetch all doctors once on mount
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => {
-      let filtered = [...DOCTORS];
-      if (search) filtered = filtered.filter(d => d.name.toLowerCase().includes(search.toLowerCase()) || d.specialty.toLowerCase().includes(search.toLowerCase()));
-      if (specialty) filtered = filtered.filter(d => d.specialty === specialty);
-      if (sort === "fee-asc") filtered.sort((a, b) => a.fee - b.fee);
-      else if (sort === "fee-desc") filtered.sort((a, b) => b.fee - a.fee);
-      else if (sort === "rating") filtered.sort((a, b) => b.rating - a.rating);
-      setDocs(filtered);
-      setLoading(false);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [search, specialty, sort]);
+    doctorsApi.getAll()
+      .then(res => setAllDoctors(res.data))
+      .catch(() => setAllDoctors([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // ✅ filter/sort locally whenever search, specialty, sort or allDoctors changes
+  useEffect(() => {
+    let filtered = [...allDoctors];
+    if (search) filtered = filtered.filter(d =>
+      d.name.toLowerCase().includes(search.toLowerCase()) ||
+      d.specialty.toLowerCase().includes(search.toLowerCase())
+    );
+    if (specialty) filtered = filtered.filter(d => d.specialty === specialty);
+    if (sort === "fee-asc") filtered.sort((a, b) => a.fee - b.fee);
+    else if (sort === "fee-desc") filtered.sort((a, b) => b.fee - a.fee);
+    else if (sort === "rating") filtered.sort((a, b) => b.rating - a.rating);
+    setDocs(filtered);
+  }, [search, specialty, sort, allDoctors]);
 
   return (
     <div style={{ padding: "5rem 0" }}>
@@ -82,7 +89,8 @@ export default function AppointmentsClient() {
             <p style={{ fontSize: 15, marginTop: "1rem" }}>No doctors found. Try a different search.</p>
           </div>
         ) : (
-<div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem", gridAutoRows: "1fr" }} className="docs-grid-resp">            {docs.map(d => <DoctorCard key={d.id} doc={d} />)}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.2rem", gridAutoRows: "1fr" }} className="docs-grid-resp">
+            {docs.map(d => <DoctorCard key={d.id} doc={d} />)}
           </div>
         )}
       </div>
