@@ -159,31 +159,30 @@ export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
           <div style={{ gridColumn: "1/-1", background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-lg)", padding: "1.2rem" }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Available time slots</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-
-            {doc.availability.map(a => (
-  <span key={a} style={{ 
-    background: "var(--p-badge-bg)", 
-    color: "var(--p-badge-tx)",  
-    fontSize: 12, 
-    fontWeight: 600, 
-    padding: "5px 12px", 
-    borderRadius: 6 
-  }}>
-    <i className="ti ti-clock" style={{ fontSize: 11, marginRight: 4 }} />{a}
-  </span>
-))}
+              {doc.availability.map(a => (
+                <span key={a} style={{ 
+                  background: "var(--p-badge-bg)", 
+                  color: "var(--p-badge-tx)",  
+                  fontSize: 12, 
+                  fontWeight: 600, 
+                  padding: "5px 12px", 
+                  borderRadius: 6 
+                }}>
+                  <i className="ti ti-clock" style={{ fontSize: 11, marginRight: 4 }} />{a}
+                </span>
+              ))}
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {doc.times.map(t => (
-  <span key={t} style={{ 
-    background: "var(--green-badge-bg)", 
-    color: "var(--green-badge-tx)",
-    fontSize: 11, 
-    fontWeight: 600, 
-    padding: "3px 10px", 
-    borderRadius: 5 
-  }}>{t}</span>
-))}
+                <span key={t} style={{ 
+                  background: "var(--green-badge-bg)", 
+                  color: "var(--green-badge-tx)",
+                  fontSize: 11, 
+                  fontWeight: 600, 
+                  padding: "3px 10px", 
+                  borderRadius: 5 
+                }}>{t}</span>
+              ))}
             </div>
           </div>
         </div>
@@ -193,10 +192,6 @@ export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
           <button className="btn-book" onClick={openBook}>
             <i className="ti ti-calendar-plus" style={{ fontSize: 16 }} aria-hidden="true" />
             Book Appointment
-          </button>
-          <button className="btn btn-outline" style={{ padding: "13px 24px", fontSize: 15 }}>
-            <i className="ti ti-heart" style={{ fontSize: 16, color: "#D4537E" }} aria-hidden="true" />
-            Save
           </button>
         </div>
 
