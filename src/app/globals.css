@@ -933,3 +933,28 @@ footer {
   color: #7eb8f7 !important;
   background: rgba(24, 95, 165, 0.25) !important;
 }
+
+::placeholder {
+  color: var(--tx2);
+  opacity: 1;
+}
+
+/* Hero search placeholder */
+.hero-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);  /* dark mode: white semi-transparent */
+  opacity: 1;
+}
+
+/* Light mode: hero section still has a blue gradient bg,
+   so we darken the placeholder to be readable against it */
+:root:not([data-theme="dark"]) .hero-search-input::placeholder,
+:root:not(.dark) .hero-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);  /* slightly more muted on lighter bg */
+  opacity: 1;
+}
+
+/* Also fix the input text color in light mode */
+:root:not([data-theme="dark"]) .hero-search-input,
+:root:not(.dark) .hero-search-input {
+  color: #fff;
+}

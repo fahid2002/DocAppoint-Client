@@ -107,39 +107,40 @@ export default function HeroSection() {
           </p>
 
           {/* Search bar */}
-          <div
-            style={{
-              display: "flex",
-              maxWidth: 480,
-              background: "rgba(255,255,255,0.13)",
-              border: "1.5px solid rgba(255,255,255,0.28)",
-              borderRadius: "var(--r-lg)",
-              padding: 5,
-              backdropFilter: "blur(10px)",
-              marginBottom: "1.8rem",
-            }}
-          >
-            <i className="ti ti-search" style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, marginLeft: 4, alignSelf: "center" }} aria-hidden="true" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="Search by doctor name or specialty…"
-              style={{
-                flex: 1,
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                fontSize: 14,
-                color: "#fff",
-                padding: "7px 12px",
-                fontFamily: "DM Sans, sans-serif",
-              }}
-            />
-            <button onClick={handleSearch} className="btn btn-primary btn-sm" style={{ borderRadius: 9, padding: "9px 18px" }}>
-              Search
-            </button>
-          </div>
+<div
+  style={{
+    display: "flex",
+    maxWidth: 480,
+    background: "rgba(255,255,255,0.13)",
+    border: "1.5px solid rgba(255,255,255,0.28)",
+    borderRadius: "var(--r-lg)",
+    padding: 5,
+    backdropFilter: "blur(10px)",
+    marginBottom: "1.8rem",
+  }}
+>
+  <i className="ti ti-search" style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, marginLeft: 4, alignSelf: "center" }} aria-hidden="true" />
+  <input
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+    placeholder="Search by doctor name or specialty…"
+    className="hero-search-input"
+    style={{
+      flex: 1,
+      background: "transparent",
+      border: "none",
+      outline: "none",
+      fontSize: 14,
+      color: "#fff",
+      padding: "7px 12px",
+      fontFamily: "DM Sans, sans-serif",
+    }}
+  />
+  <button onClick={handleSearch} className="btn btn-primary btn-sm" style={{ borderRadius: 9, padding: "9px 18px" }}>
+    Search
+  </button>
+</div>
 
           {/* Stats */}
           <div style={{ display: "flex", gap: "2rem" }}>
