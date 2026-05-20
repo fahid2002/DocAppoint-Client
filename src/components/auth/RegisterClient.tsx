@@ -25,6 +25,22 @@ export default function RegisterClient() {
     } else setPassErr("");
   };
 
+  // ✅ handle file selection
+  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === "string") {
+        setForm(p => ({ ...p, photo: result }));
+        setPhotoPreview(result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleRegister = async () => {
     setErr("");
     if (!form.name || !form.email) { setErr("Name and email are required."); return; }
@@ -77,60 +93,57 @@ export default function RegisterClient() {
           <div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />or use email<div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />
         </div>
 
-        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Full name</label><input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Fahid Hasan" /></div>
-        <div className="auth-field" style={{ marginBottom: "0.85rem" }}><label>Email address</label><input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="fahid@gmail.com" /></div>
+        <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
+          <label>Full name</label>
+          <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Fahid Hasan" />
+        </div>
+        <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
+          <label>Email address</label>
+          <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="fahid@gmail.com" />
+        </div>
+
+        {/* ✅ Photo — browse + OR + URL input */}
         <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
           <label>Photo (optional)</label>
+
+          {/* Browse button */}
           <div
             role="button"
             onClick={() => fileInputRef.current?.click()}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 10,
-              width: "100%",
-              minHeight: 44,
-              padding: "0 0.9rem",
-              border: "1px solid var(--bdr)",
-              borderRadius: "var(--r-sm)",
-              background: "var(--card)",
-              color: "var(--tx)",
-              cursor: "pointer",
-            }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", minHeight: 44, padding: "0 0.9rem", border: "1px solid var(--bdr)", borderRadius: "var(--r-sm)", background: "var(--card)", color: "var(--tx)", cursor: "pointer", marginBottom: "0.5rem" }}
           >
             <span style={{ flex: 1, fontSize: 13, color: photoName ? "var(--tx)" : "var(--tx3)" }}>
               {photoName || "Click to browse image file"}
             </span>
             <span style={{ fontSize: 12, color: "var(--tx3)" }}>Browse</span>
           </div>
+          <input ref={fileInputRef} type="file" accept="image/*" aria-label="Choose profile photo" style={{ display: "none" }} onChange={handlePhotoFile} />
+
+          {/* OR divider */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "0.5rem 0", fontSize: 11, color: "var(--tx3)" }}>
+            <div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />or paste a URL<div style={{ flex: 1, height: 1, background: "var(--bdr)" }} />
+          </div>
+
+          {/* URL input */}
           <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            aria-label="Choose profile photo"
-            style={{ display: "none" }}
+            value={photoName ? "" : form.photo}
             onChange={e => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              setPhotoName(file.name);
-              const reader = new FileReader();
-              reader.onload = () => {
-                const result = reader.result;
-                if (typeof result === "string") {
-                  setForm(p => ({ ...p, photo: result }));
-                  setPhotoPreview(result);
-                }
-              };
-              reader.readAsDataURL(file);
+              setPhotoName("");
+              setPhotoPreview(e.target.value || null);
+              setForm(p => ({ ...p, photo: e.target.value }));
             }}
+            placeholder="https://example.com/photo.jpg"
+            style={{ width: "100%", fontSize: 13, padding: "10px 13px", borderRadius: "var(--r-sm)", border: "1px solid var(--bdr)", background: "var(--card)", color: "var(--tx)", outline: "none" }}
           />
+
+          {/* Preview */}
           {photoPreview && (
-            <div style={{ marginTop: "0.75rem", width: "100%", borderRadius: "0.75rem", overflow: "hidden", border: "1px solid var(--bdr)" }}>
-              <img src={photoPreview} alt="Selected photo preview" style={{ width: "100%", display: "block" }} />
+            <div style={{ marginTop: "0.75rem", width: 72, height: 72, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--bdr)", margin: "0.75rem auto 0" }}>
+              <img src={photoPreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           )}
         </div>
+
         <div className="auth-field" style={{ marginBottom: "0.85rem" }}>
           <label>Password</label>
           <input type="password" value={form.pass} onChange={e => { setForm(p => ({ ...p, pass: e.target.value })); checkPass(e.target.value); }} placeholder="Min 6 chars, upper & lowercase" />
