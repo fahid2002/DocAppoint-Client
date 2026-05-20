@@ -160,13 +160,29 @@ export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
             <div style={{ fontSize: 10.5, fontWeight: 700, color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Available time slots</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
               {doc.availability.map(a => (
-                <span key={a} style={{ background: "var(--p3)", color: "var(--p2)", fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 6 }}><i className="ti ti-clock" style={{ fontSize: 11, marginRight: 4 }} />{a}</span>
-              ))}
+  <span key={a} style={{ 
+    background: "rgba(24, 95, 165, 0.25)", 
+    color: "#7eb8f7",  // ✅ bright blue text visible in both modes
+    fontSize: 12, 
+    fontWeight: 600, 
+    padding: "5px 12px", 
+    borderRadius: 6 
+  }}>
+    <i className="ti ti-clock" style={{ fontSize: 11, marginRight: 4 }} />{a}
+  </span>
+))}
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {doc.times.map(t => (
-                <span key={t} style={{ background: "var(--green-bg)", color: "var(--green-tx)", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 5 }}>{t}</span>
-              ))}
+  <span key={t} style={{ 
+    background: "rgba(31, 158, 117, 0.2)", 
+    color: "var(--green-tx)",  // ✅ uses theme-aware green text
+    fontSize: 11, 
+    fontWeight: 600, 
+    padding: "3px 10px", 
+    borderRadius: 5 
+  }}>{t}</span>
+))}
             </div>
           </div>
         </div>
