@@ -19,7 +19,11 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // ✅ local override for instant update without session refresh
-  const [localProfile, setLocalProfile] = useState<{ name: string; image: string } | null>(null);
+  const [localProfile, setLocalProfile] = useState<{ name: string; image: string } | null>(() => {
+  if (typeof window === "undefined") return null;
+  const saved = localStorage.getItem("da_profile");
+  return saved ? JSON.parse(saved) : null;
+});
 
   const user = session?.user;
   const displayName = localProfile?.name ?? user?.name ?? "";
@@ -27,20 +31,21 @@ export default function Navbar() {
 
   // ✅ listen for profile-updated event from DashboardClient
   useEffect(() => {
-    const handler = (e: Event) => {
-      const { name, image } = (e as CustomEvent).detail;
-      setLocalProfile({ name, image });
-    };
-    window.addEventListener("profile-updated", handler);
-    return () => window.removeEventListener("profile-updated", handler);
-  }, []);
+  const handler = (e: Event) => {
+    const { name, image } = (e as CustomEvent).detail;
+    setLocalProfile({ name, image });
+  };
+  window.addEventListener("profile-updated", handler);
+  return () => window.removeEventListener("profile-updated", handler);
+}, []);
 
   const handleLogout = async () => {
-    await signOut();
-    toast.success("You have been logged out.");
-    router.push("/");
-    router.refresh();
-  };
+  await signOut();
+  localStorage.removeItem("da_profile"); // ✅ clear on logout
+  toast.success("You have been logged out.");
+  router.push("/");
+  router.refresh();
+};
 
   const navLinks = [
     { href: "/", label: "Home" },

@@ -41,7 +41,11 @@ export default function DashboardClient() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null); // ✅ preview
   const photoInputRef = useRef<HTMLInputElement | null>(null); // ✅ file input ref
 
-  const [localUser, setLocalUser] = useState<{ name: string; image: string } | null>(null);
+const [localUser, setLocalUser] = useState<{ name: string; image: string } | null>(() => {
+  if (typeof window === "undefined") return null;
+  const saved = localStorage.getItem("da_profile");
+  return saved ? JSON.parse(saved) : null;
+});
   const jwtIssued = useRef(false);
   const user = session?.user;
 
@@ -120,26 +124,31 @@ export default function DashboardClient() {
   };
 
   const handleProfileUpdate = async () => {
-    if (!profileForm.name.trim()) { toast.error("Name cannot be empty."); return; }
-    setSaving(true);
-    try {
-      const res = await fetch("/api/auth/update-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: profileForm.name, image: profileForm.photo }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      setLocalUser({ name: profileForm.name, image: profileForm.photo });
-      setProfileModal(false);
-      toast.success("Profile updated successfully!");
+  if (!profileForm.name.trim()) { toast.error("Name cannot be empty."); return; }
+  setSaving(true);
+  try {
+    const res = await fetch("/api/auth/update-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: profileForm.name, image: profileForm.photo }),
+    });
+    if (!res.ok) throw new Error("Failed");
 
-      window.dispatchEvent(new CustomEvent("profile-updated", {
+    setLocalUser({ name: profileForm.name, image: profileForm.photo });
+    setProfileModal(false);
+    toast.success("Profile updated successfully!");
+
+    // ✅ persist to localStorage
+    localStorage.setItem("da_profile", JSON.stringify({ name: profileForm.name, image: profileForm.photo }));
+
+    // ✅ notify navbar
+    window.dispatchEvent(new CustomEvent("profile-updated", {
       detail: { name: profileForm.name, image: profileForm.photo }
     }));
-    
-    } catch { toast.error("Failed to update profile."); }
-    finally { setSaving(false); }
-  };
+
+  } catch { toast.error("Failed to update profile."); }
+  finally { setSaving(false); }
+};
 
   if (isPending) return <div className="spinner"><div className="spin-anim" />Loading…</div>;
   if (!user) return null;
