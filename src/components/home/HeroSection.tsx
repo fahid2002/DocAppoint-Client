@@ -37,7 +37,7 @@ export default function HeroSection() {
   const stars = (r: number) => "★".repeat(Math.round(r)) + "☆".repeat(5 - Math.round(r));
 
   return (
-    <div className="hero">
+    <div className="hero" style={{ overflowX: "hidden" }} >
       <div
         style={{
           maxWidth: 1200,
@@ -49,6 +49,8 @@ export default function HeroSection() {
           alignItems: "center",
           position: "relative",
           zIndex: 1,
+          width: "100%",
+    boxSizing: "border-box",
         }}
         className="hero-inner-grid"
       >
@@ -250,12 +252,15 @@ export default function HeroSection() {
       </div>
 
       <style>{`
-        @media (max-width: 900px) {
-          .hero-inner-grid { grid-template-columns: 1fr !important; }
-          .hero-card-desktop { display: none !important; }
-        }
-        .hero-card-desktop .swiper { border-radius: var(--r-lg); }
-      `}</style>
+  @media (max-width: 900px) {
+    .hero-inner-grid { grid-template-columns: 1fr !important; }
+    .hero-card-desktop {
+      max-width: 340px;
+      margin: 0 auto;
+    }
+  }
+  .hero-card-desktop .swiper { border-radius: var(--r-lg); }
+`}</style>
     </div>
   );
 }

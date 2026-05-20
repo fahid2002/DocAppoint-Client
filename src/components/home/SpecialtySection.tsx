@@ -57,6 +57,12 @@ export default function SpecialtySection() {
             grid-column: span 1;
           }
         }
+          @media (max-width: 480px) {
+    .spec-grid-resp {
+      grid-template-columns: repeat(4, 1fr) !important;
+      justify-content: center !important;
+    }
+  }
       `}</style>
     </div>
   );

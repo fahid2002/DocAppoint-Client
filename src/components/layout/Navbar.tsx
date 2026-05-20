@@ -117,7 +117,7 @@ export default function Navbar() {
             )}
 
             {/* Hamburger */}
-            <button className="flex md:hidden flex-col gap-[5px] cursor-pointer p-1" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+            <button className="flex md:hidden flex-col gap-[5px] cursor-pointer p-1" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu" style={{ flexShrink: 0 }}>
               <span style={{ display: "block", width: 22, height: 2, background: "var(--tx)", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : undefined }} />
               <span style={{ display: "block", width: 22, height: 2, background: "var(--tx)", borderRadius: 2, opacity: menuOpen ? 0 : 1, transition: "all 0.3s" }} />
               <span style={{ display: "block", width: 22, height: 2, background: "var(--tx)", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : undefined }} />
