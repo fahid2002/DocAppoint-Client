@@ -7,6 +7,8 @@ import { Autoplay } from "swiper/modules";
 import { DOCTORS } from "@/data/doctors";
 import { useSession } from "@/libs/auth-client";
 import "swiper/css";
+import "swiper/css";
+import "swiper/css/autoplay";
 
 // pick top 5 rated doctors for hero
 const heroDoctors = [...DOCTORS].sort((a, b) => b.rating - a.rating).slice(0, 5);
@@ -164,6 +166,7 @@ export default function HeroSection() {
             loop={true}
             slidesPerView={1}
             spaceBetween={0}
+            style={{ width: "100%", height: "100%" }}
           >
             {heroDoctors.map((doc) => (
               <SwiperSlide key={doc.id}>
