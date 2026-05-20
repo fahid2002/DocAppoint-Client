@@ -131,15 +131,15 @@ export default function Navbar() {
         <div style={{ display: "flex", position: "fixed", top: 66, left: 0, right: 0, background: "var(--nav)", borderBottom: "1px solid var(--nav-bdr)", padding: "1rem 1.5rem", zIndex: 199, flexDirection: "column", gap: 4 }}>
           {navLinks.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
-              style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: pathname === l.href ? "var(--p)" : "var(--tx2)", background: pathname === l.href ? "var(--p3)" : "transparent", cursor: "pointer", transition: "background 0.2s, color 0.2s" }}>
+              style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: pathname === l.href ? "var(--p)" : "var(--tx)", background: pathname === l.href ? "var(--p3)" : "transparent", cursor: "pointer", transition: "background 0.2s, color 0.2s" }}>
               {l.label}
             </Link>
           ))}
           <hr style={{ borderColor: "var(--bdr)", margin: "0.5rem 0" }} />
           {!user && (
             <>
-              <Link href="/login" onClick={() => setMenuOpen(false)} style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: "var(--tx2)", cursor: "pointer" }}>Login</Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: "var(--tx2)", cursor: "pointer" }}>Register</Link>
+              <Link href="/login" onClick={() => setMenuOpen(false)} style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: "var(--tx)", cursor: "pointer" }}>Login</Link>
+              <Link href="/register" onClick={() => setMenuOpen(false)} style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: "var(--tx)", cursor: "pointer" }}>Register</Link>
             </>
           )}
         </div>
