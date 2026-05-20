@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap"
           rel="stylesheet" />
+          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
       <body>
         <ThemeProvider>
