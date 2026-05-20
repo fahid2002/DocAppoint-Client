@@ -1,5 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 import toast from "react-hot-toast";
 
 const FIXED = [
@@ -61,6 +65,38 @@ function getInitials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
+function ReviewCard({ av, name, role, rating, text }: { av: string; name: string; role: string; rating: number; text: string }) {
+  return (
+    <div style={{
+      background: "var(--card)",
+      border: "1px solid var(--card-bdr)",
+      borderRadius: "var(--r-lg)",
+      padding: "1.4rem",
+      height: "100%",
+      boxSizing: "border-box",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",   // ← pushes author block to bottom
+    }}>
+      {/* Top: quote + review text */}
+      <div>
+        <div style={{ fontSize: 38, color: "var(--p)", fontWeight: 900, lineHeight: 1, marginBottom: "0.4rem", opacity: 0.3, fontFamily: "Sora, sans-serif" }}>&quot;</div>
+        <div style={{ fontSize: 13.5, color: "var(--tx2)", lineHeight: 1.65 }}>{text}</div>
+      </div>
+
+      {/* Bottom: avatar + name + role + stars */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "1.1rem" }}>
+        <div style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--grad-acc)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0, fontFamily: "Sora, sans-serif" }}>{av}</div>
+        <div>
+          <div style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700, color: "var(--tx)" }}>{name}</div>
+          <div style={{ fontSize: 11, color: "var(--tx3)", marginBottom: 2 }}>{role}</div>
+          <StarDisplay rating={rating} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Testimonials() {
   const [rating, setRating] = useState(0);
   const [name, setName] = useState("");
@@ -71,7 +107,6 @@ export default function Testimonials() {
   const [error, setError] = useState("");
   const [dynamicReviews, setDynamicReviews] = useState<DynamicReview[]>([]);
 
-  // Fetch reviews on mount
   useEffect(() => {
     fetch("/api/reviews")
       .then((r) => r.json())
@@ -92,12 +127,8 @@ export default function Testimonials() {
         body: JSON.stringify({ name: name.trim(), city: city.trim(), rating, review: review.trim() }),
       });
       if (!res.ok) throw new Error("Failed to submit.");
-
-      // ✅ Toast on success
       toast.success("Review submitted! Thank you 🎉");
       setSubmitted(true);
-
-      // ✅ Add new review to UI instantly
       setDynamicReviews((prev) => [
         { _id: Date.now().toString(), name: name.trim(), city: city.trim(), rating, review: review.trim() },
         ...prev,
@@ -110,6 +141,18 @@ export default function Testimonials() {
     }
   }
 
+  // Merge fixed + dynamic into one array for the swiper
+  const allSlides = [
+    ...FIXED.map((t) => ({ av: t.av, name: t.name, role: t.role, rating: t.rating, text: t.text })),
+    ...dynamicReviews.map((t) => ({
+      av: getInitials(t.name),
+      name: t.name,
+      role: `Patient${t.city ? ` · ${t.city}` : ""}`,
+      rating: t.rating,
+      text: t.review,
+    })),
+  ];
+
   return (
     <div style={{ padding: "5rem 0" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem" }}>
@@ -120,41 +163,28 @@ export default function Testimonials() {
           <div className="sec-title">Patient testimonials</div>
         </div>
 
-        {/* Fixed + Dynamic reviews grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="test-resp">
-
-          {/* Fixed reviews */}
-          {FIXED.map((t) => (
-            <div key={t.name} style={{ background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-lg)", padding: "1.4rem" }}>
-              <div style={{ fontSize: 38, color: "var(--p)", fontWeight: 900, lineHeight: 1, marginBottom: "0.4rem", opacity: 0.3, fontFamily: "Sora, sans-serif" }}>&quot;</div>
-              <div style={{ fontSize: 13.5, color: "var(--tx2)", lineHeight: 1.65, marginBottom: "0.9rem" }}>{t.text}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--grad-acc)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0, fontFamily: "Sora, sans-serif" }}>{t.av}</div>
-                <div>
-                  <div style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700, color: "var(--tx)" }}>{t.name}</div>
-                  <div style={{ fontSize: 11, color: "var(--tx3)", marginBottom: 2 }}>{t.role}</div>
-                  <StarDisplay rating={t.rating} />
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* Dynamic reviews from MongoDB */}
-          {dynamicReviews.map((t) => (
-            <div key={t._id} style={{ background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-lg)", padding: "1.4rem" }}>
-              <div style={{ fontSize: 38, color: "var(--p)", fontWeight: 900, lineHeight: 1, marginBottom: "0.4rem", opacity: 0.3, fontFamily: "Sora, sans-serif" }}>&quot;</div>
-              <div style={{ fontSize: 13.5, color: "var(--tx2)", lineHeight: 1.65, marginBottom: "0.9rem" }}>{t.review}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--grad-acc)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0, fontFamily: "Sora, sans-serif" }}>{getInitials(t.name)}</div>
-                <div>
-                  <div style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700, color: "var(--tx)" }}>{t.name}</div>
-                  <div style={{ fontSize: 11, color: "var(--tx3)", marginBottom: 2 }}>Patient{t.city ? ` · ${t.city}` : ""}</div>
-                  <StarDisplay rating={t.rating} />
-                </div>
-              </div>
-            </div>
-          ))}
-
+        {/* Swiper carousel */}
+        <div className="test-swiper-wrap">
+          <Swiper
+            modules={[Pagination, Autoplay]}
+            spaceBetween={16}
+            slidesPerView={3}
+            autoplay={{ delay: 3500, disableOnInteraction: false }}
+            pagination={{ clickable: true }}
+            loop={allSlides.length > 3}
+            breakpoints={{
+              0:   { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              900: { slidesPerView: 3 },
+            }}
+            style={{ paddingBottom: "2.5rem" }}
+          >
+            {allSlides.map((s, i) => (
+              <SwiperSlide key={`${s.name}-${i}`} style={{ height: "auto" }}>
+                <ReviewCard {...s} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
 
         {/* Divider */}
@@ -217,12 +247,19 @@ export default function Testimonials() {
       <style>{`
         :root { --star-empty: #C8B89A; }
         [data-theme="dark"], .dark { --star-empty: #5A4F3E; }
+
         .review-input { border: 1.5px solid var(--bdr); border-radius: var(--r-sm); background: var(--card); color: var(--tx); font-size: 13px; padding: 10px 13px; outline: none; width: 100%; box-sizing: border-box; transition: border-color 0.15s; }
         .review-input:focus { border-color: var(--p); }
         .review-input::placeholder { color: #A0AEC0; font-weight: 400; opacity: 1; }
         [data-theme="dark"] .review-input::placeholder, .dark .review-input::placeholder { color: #5B8FA8; font-weight: 400; opacity: 1; }
-        .auth-field input::placeholder, .auth-field textarea::placeholder { color: #A0AEC0; font-weight: 400; opacity: 1; }
-        [data-theme="dark"] .auth-field input::placeholder, [data-theme="dark"] .auth-field textarea::placeholder, .dark .auth-field input::placeholder, .dark .auth-field textarea::placeholder { color: #5B8FA8; font-weight: 400; opacity: 1; }
+
+        /* Swiper slide equal height */
+        .test-swiper-wrap .swiper-slide { height: auto; }
+
+        /* Pagination dots */
+        .test-swiper-wrap .swiper-pagination-bullet { background: var(--card-bdr); opacity: 1; }
+        .test-swiper-wrap .swiper-pagination-bullet-active { background: var(--p); width: 22px; border-radius: 4px; }
+
         @media(max-width:900px){ .test-resp{ grid-template-columns: 1fr !important; } }
       `}</style>
     </div>
