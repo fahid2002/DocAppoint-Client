@@ -159,10 +159,11 @@ export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
           <div style={{ gridColumn: "1/-1", background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-lg)", padding: "1.2rem" }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, color: "var(--tx3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Available time slots</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-              {doc.availability.map(a => (
+
+            {doc.availability.map(a => (
   <span key={a} style={{ 
-    background: "rgba(24, 95, 165, 0.25)", 
-    color: "#7eb8f7",  // ✅ bright blue text visible in both modes
+    background: "var(--p-badge-bg)", 
+    color: "var(--p-badge-tx)",  
     fontSize: 12, 
     fontWeight: 600, 
     padding: "5px 12px", 
@@ -175,8 +176,8 @@ export default function DoctorDetailsClient({ doc }: { doc: Doctor }) {
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {doc.times.map(t => (
   <span key={t} style={{ 
-    background: "rgba(31, 158, 117, 0.2)", 
-    color: "var(--green-tx)",  // ✅ uses theme-aware green text
+    background: "var(--green-badge-bg)", 
+    color: "var(--green-badge-tx)",
     fontSize: 11, 
     fontWeight: 600, 
     padding: "3px 10px", 

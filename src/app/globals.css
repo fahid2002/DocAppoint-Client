@@ -26,6 +26,10 @@
   --bdr: rgba(24, 95, 165, 0.14);
   --green-bg: #eaf3de;
   --green-tx: #3b6d11;
+  --p-badge-bg: #dbeafe;
+--p-badge-tx: #1d4ed8;
+--green-badge-bg: #dcfce7;
+--green-badge-tx: #15803d;
   --amber-bg: #faeeda;
   --amber-tx: #633806;
   --red: #e24b4a;
@@ -60,6 +64,10 @@
   --p3: #0c447c;
   --green-bg: rgba(8, 80, 65, 0.5);
   --green-tx: #9fe1cb;
+  --p-badge-bg: rgba(24, 95, 165, 0.25);
+--p-badge-tx: #7eb8f7;
+--green-badge-bg: rgba(31, 158, 117, 0.2);
+--green-badge-tx: #4ade80;
   --amber-bg: #412402;
   --amber-tx: #fac775;
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.3);
@@ -805,7 +813,7 @@ footer {
     gap: 0.5rem;
     overflow: hidden;
   }
-  
+
   @media (max-width: 380px) {
   .nav-inner {
     padding: 0 0.6rem;
