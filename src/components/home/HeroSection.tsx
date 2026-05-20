@@ -1,11 +1,19 @@
 "use client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+import { DOCTORS } from "@/data/doctors";
+import { useSession } from "@/libs/auth-client";
+import "swiper/css";
+
+// pick top 5 rated doctors for hero
+const heroDoctors = [...DOCTORS].sort((a, b) => b.rating - a.rating).slice(0, 5);
 
 export default function HeroSection() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [search, setSearch] = useState("");
 
   const handleSearch = () => {
@@ -15,6 +23,16 @@ export default function HeroSection() {
       router.push("/appointments");
     }
   };
+
+  const handleDoctorClick = (id: string) => {
+    if (!session?.user) {
+      router.push("/login");
+    } else {
+      router.push(`/appointments/${id}`);
+    }
+  };
+
+  const stars = (r: number) => "★".repeat(Math.round(r)) + "☆".repeat(5 - Math.round(r));
 
   return (
     <div className="hero">
@@ -97,11 +115,7 @@ export default function HeroSection() {
               marginBottom: "1.8rem",
             }}
           >
-            <i
-              className="ti ti-search"
-              style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, marginLeft: 4, alignSelf: "center" }}
-              aria-hidden="true"
-            />
+            <i className="ti ti-search" style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, marginLeft: 4, alignSelf: "center" }} aria-hidden="true" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -118,11 +132,7 @@ export default function HeroSection() {
                 fontFamily: "DM Sans, sans-serif",
               }}
             />
-            <button
-              onClick={handleSearch}
-              className="btn btn-primary btn-sm"
-              style={{ borderRadius: 9, padding: "9px 18px" }}
-            >
+            <button onClick={handleSearch} className="btn btn-primary btn-sm" style={{ borderRadius: 9, padding: "9px 18px" }}>
               Search
             </button>
           </div>
@@ -136,195 +146,112 @@ export default function HeroSection() {
               { num: "4.9★", lbl: "Avg Rating" },
             ].map((s) => (
               <div key={s.lbl}>
-                <div
-                  style={{
-                    fontFamily: "Sora, sans-serif",
-                    fontSize: 24,
-                    fontWeight: 900,
-                    color: "var(--acc3)",
-                  }}
-                >
-                  {s.num}
-                </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
-                  {s.lbl}
-                </div>
+                <div style={{ fontFamily: "Sora, sans-serif", fontSize: 24, fontWeight: 900, color: "var(--acc3)" }}>{s.num}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{s.lbl}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right hero card */}
-        <div
-          className="hero-card-desktop"
-          style={{
-            borderRadius: "var(--r-lg)",
-            padding: "1.1rem",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-          }}
-        >
-          <div
-            className="card-divider"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: "0.8rem",
-              paddingBottom: "0.8rem",
-            }}
+        {/* Right — Swiper doctor cards */}
+        <div className="hero-card-desktop" style={{
+              borderRadius: "var(--r-lg)",
+              padding: "1.1rem",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)", }}>
+          <Swiper
+            modules={[Autoplay]}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            loop={true}
+            slidesPerView={1}
+            spaceBetween={0}
           >
-            <div
-              className="card-avatar"
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 11,
-                overflow: "hidden",
-                flexShrink: 0,
-              }}
-            >
-              <Image
-                src="https://i.pravatar.cc/100?img=48"
-                alt="Dr. Ayesha"
-                width={50}
-                height={50}
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-            <div>
-              <div
-                className="card-name"
-                style={{
-                  fontFamily: "Sora, sans-serif",
-                  fontSize: 13,
-                  fontWeight: 700,
-                }}
-              >
-                Dr. Ayesha Rahman
-              </div>
-              <div className="card-specialty" style={{ fontSize: 11, fontWeight: 600 }}>
-                Cardiologist · BMDC Verified
-              </div>
-              <div style={{ color: "#BA7517", fontSize: 12 }}>★★★★★ 4.9</div>
-            </div>
-          </div>
+            {heroDoctors.map((doc) => (
+              <SwiperSlide key={doc.id}>
+                <div
+  onClick={() => handleDoctorClick(doc.id)}
+  style={{ cursor: "pointer" }}
+>
+  {/* Doctor header */}
+                  <div
+                    className="card-divider"
+                    style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "0.8rem", paddingBottom: "0.8rem" }}
+                  >
+                    <div
+                      className="card-avatar"
+                      style={{ width: 50, height: 50, borderRadius: 11, overflow: "hidden", flexShrink: 0 }}
+                    >
+                      <Image src={doc.img} alt={doc.name} width={50} height={50} style={{ objectFit: "cover", objectPosition: "top" }} />
+                    </div>
+                    <div>
+                      <div className="card-name" style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700 }}>
+                        {doc.name}
+                      </div>
+                      <div className="card-specialty" style={{ fontSize: 11, fontWeight: 600 }}>
+                        {doc.specialty} · BMDC Verified
+                      </div>
+                      <div style={{ color: "#BA7517", fontSize: 12 }}>{stars(doc.rating)} {doc.rating}</div>
+                    </div>
+                  </div>
 
-          <div
-            className="card-label"
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              marginBottom: "0.45rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-            }}
-          >
-            Next available slots
-          </div>
-          <div style={{ display: "flex", gap: 5, marginBottom: "0.7rem" }}>
-            <span
-              className="card-slot-green"
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                padding: "4px 10px",
-                borderRadius: 6,
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <i className="ti ti-clock" style={{ fontSize: 10 }} aria-hidden="true" />
-              Today 9:00 AM
-            </span>
-            <span
-              className="card-slot-blue"
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                padding: "4px 10px",
-                borderRadius: 6,
-              }}
-            >
-              4:00 PM
-            </span>
-          </div>
+                  {/* Slots */}
+                  <div className="card-label" style={{ fontSize: 10, fontWeight: 700, marginBottom: "0.45rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    Next available slots
+                  </div>
+                  <div style={{ display: "flex", gap: 5, marginBottom: "0.7rem" }}>
+                    <span className="card-slot-green" style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: 4 }}>
+                      <i className="ti ti-clock" style={{ fontSize: 10 }} />
+                      {doc.times[0] || "9:00 AM"}
+                    </span>
+                    {doc.times[1] && (
+                      <span className="card-slot-blue" style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6 }}>
+                        {doc.times[1]}
+                      </span>
+                    )}
+                  </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div
-              className="card-fee"
-              style={{
-                fontFamily: "Sora, sans-serif",
-                fontSize: 17,
-                fontWeight: 800,
-              }}
-            >
-              ৳800{" "}
-              <small className="card-fee-small" style={{ fontSize: 10, fontWeight: 400 }}>/visit</small>
-            </div>
-            <div
-              className="card-available"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                fontSize: 10,
-                fontWeight: 700,
-                padding: "3px 9px",
-                borderRadius: 5,
-              }}
-            >
-              <div className="pulse" />
-              Available
-            </div>
-          </div>
+                  {/* Fee + Available */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div className="card-fee" style={{ fontFamily: "Sora, sans-serif", fontSize: 17, fontWeight: 800 }}>
+                      ৳{doc.fee} <small className="card-fee-small" style={{ fontSize: 10, fontWeight: 400 }}>/visit</small>
+                    </div>
+                    <div className="card-available" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 5 }}>
+                      <div className="pulse" />
+                      Available
+                    </div>
+                  </div>
 
-          <div
-            className="card-bottom"
-            style={{
-              borderRadius: 10,
-              padding: "0.65rem 0.85rem",
-              marginTop: "0.75rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.7rem",
-            }}
-          >
-            <div
-              className="card-bottom-icon"
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 8,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 16,
-                flexShrink: 0,
-              }}
-            >
-              <i className="ti ti-calendar" aria-hidden="true" />
-            </div>
-            <div>
-              <div className="card-bottom-title" style={{ fontSize: 11.5, fontWeight: 700 }}>
-                15,000+ bookings this month
-              </div>
-              <div className="card-bottom-sub" style={{ fontSize: 10 }}>
-                Verified &amp; confirmed appointments
-              </div>
-            </div>
-          </div>
+                  {/* Bottom */}
+                  <div className="card-bottom" style={{ borderRadius: 10, padding: "0.65rem 0.85rem", marginTop: "0.75rem", display: "flex", alignItems: "center", gap: "0.7rem" }}>
+                    <div className="card-bottom-icon" style={{ width: 34, height: 34, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                      <i className="ti ti-calendar" />
+                    </div>
+                    <div>
+                      <div className="card-bottom-title" style={{ fontSize: 11.5, fontWeight: 700 }}>
+                        {doc.hospital}
+                      </div>
+                      <div className="card-bottom-sub" style={{ fontSize: 10 }}>
+                        {doc.location}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Click hint */}
+                  <div style={{ textAlign: "center", marginTop: "0.6rem", fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                    Click to view details →
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
+
       <style>{`
         @media (max-width: 900px) {
-          .hero-inner-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .hero-card-desktop {
-            display: none !important;
-          }
+          .hero-inner-grid { grid-template-columns: 1fr !important; }
+          .hero-card-desktop { display: none !important; }
         }
+        .hero-card-desktop .swiper { border-radius: var(--r-lg); }
       `}</style>
     </div>
   );
