@@ -906,3 +906,13 @@ footer {
 
 .hero-card-desktop .card-avatar { background: #e6f1fb; }
 .dark .hero-card-desktop .card-avatar { background: rgba(24,95,165,0.2); }
+
+/* Mobile menu link visibility */
+.dark .mobile-link {
+  color: #c8d6e8 !important;
+}
+
+.dark .mobile-link-active {
+  color: #7eb8f7 !important;
+  background: rgba(24, 95, 165, 0.25) !important;
+}
