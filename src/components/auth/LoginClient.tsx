@@ -29,7 +29,7 @@ export default function LoginClient() {
         return; // ← explicit return, never reaches getJwt on failure
       }
 
-      // ✅ Only reaches here on successful login
+      // Only reaches here on successful login
       try {
         await authApi.getJwt(email); // sets httpOnly JWT cookie from Express
       } catch {

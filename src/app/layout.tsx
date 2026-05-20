@@ -13,15 +13,18 @@ export const metadata: Metadata = {
     "Bangladesh's most trusted platform for finding and booking verified specialist doctors. Fast, secure, and completely patient-first — available 24/7.",
   keywords: ["doctor appointment", "Bangladesh doctors", "BMDC verified", "book doctor online"],
   openGraph: {
-    title: "DocAppoint — Book Top Doctors in Bangladesh",
-    description: "Find and book verified specialist doctors in Bangladesh.",
-    type: "website",
-    url: "https://docappoint.netlify.app",
-  },
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>",
-  },
-};
+  title: "DocAppoint — Book Top Doctors in Bangladesh",
+  description: "Find and book verified specialist doctors in Bangladesh.",
+  type: "website",
+  url: "https://doc-appoint-client.vercel.app",
+  images: [
+    {
+      url: "https://doc-appoint-client.vercel.app/thumbnail.png",
+      width: 1200,
+      height: 630,
+    },
+  ],
+},
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

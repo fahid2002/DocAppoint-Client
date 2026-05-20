@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react"; // ✅ added useEffect
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "@/libs/auth-client";
 import { useTheme } from "./ThemeProvider";
 import toast from "react-hot-toast";
@@ -18,7 +18,7 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ✅ local override for instant update without session refresh
+  // local override for instant update without session refresh
   const [localProfile, setLocalProfile] = useState<{ name: string; image: string } | null>(() => {
   if (typeof window === "undefined") return null;
   const saved = localStorage.getItem("da_profile");
@@ -29,7 +29,7 @@ export default function Navbar() {
   const displayName = localProfile?.name ?? user?.name ?? "";
   const displayImage = localProfile?.image ?? user?.image ?? "";
 
-  // ✅ listen for profile-updated event from DashboardClient
+  // listen for profile-updated event from DashboardClient
   useEffect(() => {
   const handler = (e: Event) => {
     const { name, image } = (e as CustomEvent).detail;
