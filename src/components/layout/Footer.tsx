@@ -109,11 +109,11 @@ export default function Footer() {
               </p>
               <div style={{ display: "flex", gap: 7 }}>
                 {[
-                  { icon: "ti-brand-x", href: "https://x.com" },
-                  { icon: "ti-brand-facebook", href: "https://facebook.com" },
-                  { icon: "ti-brand-instagram", href: "https://instagram.com" },
-                  { icon: "ti-brand-linkedin", href: "https://linkedin.com" },
-                  { icon: "ti-brand-github", href: "https://github.com" },
+                  { icon: "ti-brand-x", href: "https://x.com/fh_ifty" },
+                  { icon: "ti-brand-facebook", href: "https://www.facebook.com/fh.ifty.1" },
+                  { icon: "ti-brand-instagram", href: "https://www.instagram.com/fahidhasankhanifty/" },
+                  { icon: "ti-brand-linkedin", href: "https://www.linkedin.com/in/fahid-hasan-280425382/" },
+                  { icon: "ti-brand-github", href: "https://github.com/fahid2002" },
                 ].map((s) => (
                   <a key={s.icon} href={s.href} target="_blank" rel="noopener noreferrer" className="soc-ic">
                     <i className={`ti ${s.icon}`} aria-hidden="true" />
