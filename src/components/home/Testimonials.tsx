@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 const FIXED = [
   { av: "RU", name: "Mr. Ifty", role: "Patient · Dhaka", rating: 5, text: "Booking was incredibly smooth. Found the perfect cardiologist within minutes. The whole experience was outstanding — from search to confirmation. Highly recommended!" },
@@ -38,19 +39,26 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
           onMouseEnter={() => setHover(s)}
           onMouseLeave={() => setHover(0)}
           style={{
-            background: "none",
-            border: "none",
-            fontSize: 28,
-            cursor: "pointer",
-            color: s <= (hover || value) ? "#BA7517" : "var(--star-empty)",
-            padding: 0,
-            lineHeight: 1,
-            transition: "color 0.15s",
+            background: "none", border: "none", fontSize: 28,
+            cursor: "pointer", color: s <= (hover || value) ? "#BA7517" : "var(--star-empty)",
+            padding: 0, lineHeight: 1, transition: "color 0.15s",
           }}
         >★</button>
       ))}
     </div>
   );
+}
+
+interface DynamicReview {
+  _id: string;
+  name: string;
+  city: string;
+  rating: number;
+  review: string;
+}
+
+function getInitials(name: string) {
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 export default function Testimonials() {
@@ -61,6 +69,15 @@ export default function Testimonials() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [dynamicReviews, setDynamicReviews] = useState<DynamicReview[]>([]);
+
+  // Fetch reviews on mount
+  useEffect(() => {
+    fetch("/api/reviews")
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setDynamicReviews(d.data); })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit() {
     setError("");
@@ -75,8 +92,18 @@ export default function Testimonials() {
         body: JSON.stringify({ name: name.trim(), city: city.trim(), rating, review: review.trim() }),
       });
       if (!res.ok) throw new Error("Failed to submit.");
+
+      // ✅ Toast on success
+      toast.success("Review submitted! Thank you 🎉");
       setSubmitted(true);
+
+      // ✅ Add new review to UI instantly
+      setDynamicReviews((prev) => [
+        { _id: Date.now().toString(), name: name.trim(), city: city.trim(), rating, review: review.trim() },
+        ...prev,
+      ]);
     } catch {
+      toast.error("Something went wrong. Please try again.");
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -93,8 +120,10 @@ export default function Testimonials() {
           <div className="sec-title">Patient testimonials</div>
         </div>
 
-        {/* Fixed testimonials */}
+        {/* Fixed + Dynamic reviews grid */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="test-resp">
+
+          {/* Fixed reviews */}
           {FIXED.map((t) => (
             <div key={t.name} style={{ background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-lg)", padding: "1.4rem" }}>
               <div style={{ fontSize: 38, color: "var(--p)", fontWeight: 900, lineHeight: 1, marginBottom: "0.4rem", opacity: 0.3, fontFamily: "Sora, sans-serif" }}>&quot;</div>
@@ -109,12 +138,29 @@ export default function Testimonials() {
               </div>
             </div>
           ))}
+
+          {/* Dynamic reviews from MongoDB */}
+          {dynamicReviews.map((t) => (
+            <div key={t._id} style={{ background: "var(--card)", border: "1px solid var(--card-bdr)", borderRadius: "var(--r-lg)", padding: "1.4rem" }}>
+              <div style={{ fontSize: 38, color: "var(--p)", fontWeight: 900, lineHeight: 1, marginBottom: "0.4rem", opacity: 0.3, fontFamily: "Sora, sans-serif" }}>&quot;</div>
+              <div style={{ fontSize: 13.5, color: "var(--tx2)", lineHeight: 1.65, marginBottom: "0.9rem" }}>{t.review}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "var(--grad-acc)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0, fontFamily: "Sora, sans-serif" }}>{getInitials(t.name)}</div>
+                <div>
+                  <div style={{ fontFamily: "Sora, sans-serif", fontSize: 13, fontWeight: 700, color: "var(--tx)" }}>{t.name}</div>
+                  <div style={{ fontSize: 11, color: "var(--tx3)", marginBottom: 2 }}>Patient{t.city ? ` · ${t.city}` : ""}</div>
+                  <StarDisplay rating={t.rating} />
+                </div>
+              </div>
+            </div>
+          ))}
+
         </div>
 
         {/* Divider */}
         <hr style={{ border: "none", borderTop: "1px solid var(--card-bdr)", margin: "2.5rem 0" }} />
 
-        {/* Review form header */}
+        {/* Review form */}
         <div style={{ marginBottom: "1.25rem" }}>
           <div className="eyebrow">Share your experience</div>
           <div className="sec-title">Leave a review</div>
@@ -128,52 +174,26 @@ export default function Testimonials() {
             </div>
           ) : (
             <>
-              {/* Star picker */}
               <div style={{ marginBottom: "1rem" }}>
                 <label style={LABEL_STYLE}>Your rating</label>
                 <StarPicker value={rating} onChange={setRating} />
-                {!rating && (
-                  <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 4, fontStyle: "italic" }}>
-                    Tap a star to rate
-                  </div>
-                )}
+                {!rating && <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 4, fontStyle: "italic" }}>Tap a star to rate</div>}
               </div>
 
-              {/* Name & City */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }} className="test-resp">
                 <div>
                   <label style={LABEL_STYLE}>Full name *</label>
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Fahid Hasan Khan"
-                    className="review-input"
-                    style={{ width: "100%", boxSizing: "border-box" }}
-                  />
+                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Fahid Hasan Khan" className="review-input" style={{ width: "100%", boxSizing: "border-box" }} />
                 </div>
                 <div>
                   <label style={LABEL_STYLE}>City</label>
-                  <input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. Dhaka"
-                    className="review-input"
-                    style={{ width: "100%", boxSizing: "border-box" }}
-                  />
+                  <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Dhaka" className="review-input" style={{ width: "100%", boxSizing: "border-box" }} />
                 </div>
               </div>
 
-              {/* Review text */}
               <div style={{ marginBottom: 12 }}>
                 <label style={LABEL_STYLE}>Your review *</label>
-                <textarea
-                  value={review}
-                  onChange={(e) => setReview(e.target.value)}
-                  rows={3}
-                  placeholder="Tell others about your experience with DocAppoint..."
-                  className="review-input"
-                  style={{ width: "100%", boxSizing: "border-box", resize: "vertical" }}
-                />
+                <textarea value={review} onChange={(e) => setReview(e.target.value)} rows={3} placeholder="Tell others about your experience with DocAppoint..." className="review-input" style={{ width: "100%", boxSizing: "border-box", resize: "vertical" }} />
               </div>
 
               {error && (
@@ -195,66 +215,16 @@ export default function Testimonials() {
       </div>
 
       <style>{`
-  /* ── Star colors ── */
-  :root {
-    --star-empty: #C8B89A;
-  }
-  [data-theme="dark"], .dark {
-    --star-empty: #5A4F3E;
-  }
-
-  /* ── review-input base style with border ── */
-  .review-input {
-    border: 1.5px solid var(--bdr);
-    border-radius: var(--r-sm);
-    background: var(--card);
-    color: var(--tx);
-    font-size: 13px;
-    padding: 10px 13px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.15s;
-  }
-  .review-input:focus {
-    border-color: var(--p);
-  }
-
-  /* ── Placeholders: light mode ── */
-  .review-input::placeholder {
-    color: #A0AEC0;
-    font-weight: 400;
-    opacity: 1;
-  }
-
-  /* ── Placeholders: dark mode ── */
-  [data-theme="dark"] .review-input::placeholder,
-  .dark .review-input::placeholder {
-    color: #5B8FA8;
-    font-weight: 400;
-    opacity: 1;
-  }
-
-  /* ── Auth-field inputs (register page) ── */
-  .auth-field input::placeholder,
-  .auth-field textarea::placeholder {
-    color: #A0AEC0;
-    font-weight: 400;
-    opacity: 1;
-  }
-  [data-theme="dark"] .auth-field input::placeholder,
-  [data-theme="dark"] .auth-field textarea::placeholder,
-  .dark .auth-field input::placeholder,
-  .dark .auth-field textarea::placeholder {
-    color: #5B8FA8;
-    font-weight: 400;
-    opacity: 1;
-  }
-
-  @media(max-width:900px){
-    .test-resp{ grid-template-columns: 1fr !important; }
-  }
-`}</style>
+        :root { --star-empty: #C8B89A; }
+        [data-theme="dark"], .dark { --star-empty: #5A4F3E; }
+        .review-input { border: 1.5px solid var(--bdr); border-radius: var(--r-sm); background: var(--card); color: var(--tx); font-size: 13px; padding: 10px 13px; outline: none; width: 100%; box-sizing: border-box; transition: border-color 0.15s; }
+        .review-input:focus { border-color: var(--p); }
+        .review-input::placeholder { color: #A0AEC0; font-weight: 400; opacity: 1; }
+        [data-theme="dark"] .review-input::placeholder, .dark .review-input::placeholder { color: #5B8FA8; font-weight: 400; opacity: 1; }
+        .auth-field input::placeholder, .auth-field textarea::placeholder { color: #A0AEC0; font-weight: 400; opacity: 1; }
+        [data-theme="dark"] .auth-field input::placeholder, [data-theme="dark"] .auth-field textarea::placeholder, .dark .auth-field input::placeholder, .dark .auth-field textarea::placeholder { color: #5B8FA8; font-weight: 400; opacity: 1; }
+        @media(max-width:900px){ .test-resp{ grid-template-columns: 1fr !important; } }
+      `}</style>
     </div>
   );
 }
