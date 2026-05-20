@@ -279,7 +279,7 @@ export default function Footer() {
             }}
           >
             <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.3)" }}>
-              © 2026 DocAppoint. All rights reserved. Developed with care in Bangladesh.
+              © 2026 DocAppoint — Designed & developed by Fahid Hasan Khan. All rights reserved.
             </div>
             <div style={{ display: "flex", gap: "1.2rem" }}>
               {[
