@@ -132,6 +132,11 @@ export default function DashboardClient() {
       setLocalUser({ name: profileForm.name, image: profileForm.photo });
       setProfileModal(false);
       toast.success("Profile updated successfully!");
+
+      window.dispatchEvent(new CustomEvent("profile-updated", {
+      detail: { name: profileForm.name, image: profileForm.photo }
+    }));
+    
     } catch { toast.error("Failed to update profile."); }
     finally { setSaving(false); }
   };

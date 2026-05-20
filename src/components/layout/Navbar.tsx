@@ -1,19 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ✅ added useEffect
 import { useSession, signOut } from "@/libs/auth-client";
 import { useTheme } from "./ThemeProvider";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
 function initials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  return name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 }
 
 export default function Navbar() {
@@ -23,7 +18,22 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // ✅ local override for instant update without session refresh
+  const [localProfile, setLocalProfile] = useState<{ name: string; image: string } | null>(null);
+
   const user = session?.user;
+  const displayName = localProfile?.name ?? user?.name ?? "";
+  const displayImage = localProfile?.image ?? user?.image ?? "";
+
+  // ✅ listen for profile-updated event from DashboardClient
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { name, image } = (e as CustomEvent).detail;
+      setLocalProfile({ name, image });
+    };
+    window.addEventListener("profile-updated", handler);
+    return () => window.removeEventListener("profile-updated", handler);
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
@@ -47,15 +57,7 @@ export default function Navbar() {
             <div className="logo-mark">
               <i className="ti ti-stethoscope" aria-hidden="true" />
             </div>
-            <span
-              style={{
-                fontFamily: "Sora, sans-serif",
-                fontSize: 18,
-                fontWeight: 800,
-                color: "var(--tx)",
-                letterSpacing: "-0.4px",
-              }}
-            >
+            <span style={{ fontFamily: "Sora, sans-serif", fontSize: 18, fontWeight: 800, color: "var(--tx)", letterSpacing: "-0.4px" }}>
               Doc<span style={{ color: "var(--p)" }}>Appoint</span>
             </span>
           </Link>
@@ -63,11 +65,7 @@ export default function Navbar() {
           {/* Desktop nav links */}
           <div className="hidden md:flex gap-[2px]">
             {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={`nav-link ${pathname === l.href ? "active" : ""}`}
-              >
+              <Link key={l.href} href={l.href} className={`nav-link ${pathname === l.href ? "active" : ""}`}>
                 {l.label}
               </Link>
             ))}
@@ -84,21 +82,21 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center gap-2">
                 <Link href="/dashboard" className="av-pill">
-                  {user.image ? (
+                  {displayImage ? (
+                    // ✅ use displayImage instead of user.image
                     <Image
-                      src={user.image}
-                      alt={user.name || "User"}
+                      src={displayImage}
+                      alt={displayName || "User"}
                       width={30}
                       height={30}
                       className="rounded-full object-cover"
                     />
                   ) : (
-                    <div className="av-circle">{initials(user.name || "U")}</div>
+                    <div className="av-circle">{initials(displayName || "U")}</div>
                   )}
-                  <span
-                    style={{ fontSize: 12, fontWeight: 600, color: "var(--tx)" }}
-                  >
-                    {(user.name || "User").split(" ")[0]}
+                  {/* ✅ use displayName instead of user.name */}
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--tx)" }}>
+                    {(displayName || "User").split(" ")[0]}
                   </span>
                 </Link>
                 <button className="btn btn-sm btn-danger" onClick={handleLogout}>
@@ -108,54 +106,16 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex gap-2">
-                <Link href="/login" className="btn btn-sm btn-outline">
-                  Login
-                </Link>
-                <Link href="/register" className="btn btn-sm btn-primary">
-                  Register
-                </Link>
+                <Link href="/login" className="btn btn-sm btn-outline">Login</Link>
+                <Link href="/register" className="btn btn-sm btn-primary">Register</Link>
               </div>
             )}
 
             {/* Hamburger */}
-            <button
-              className="flex md:hidden flex-col gap-[5px] cursor-pointer p-1"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Menu"
-            >
-              <span
-                style={{
-                  display: "block",
-                  width: 22,
-                  height: 2,
-                  background: "var(--tx)",
-                  borderRadius: 2,
-                  transition: "all 0.3s",
-                  transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : undefined,
-                }}
-              />
-              <span
-                style={{
-                  display: "block",
-                  width: 22,
-                  height: 2,
-                  background: "var(--tx)",
-                  borderRadius: 2,
-                  opacity: menuOpen ? 0 : 1,
-                  transition: "all 0.3s",
-                }}
-              />
-              <span
-                style={{
-                  display: "block",
-                  width: 22,
-                  height: 2,
-                  background: "var(--tx)",
-                  borderRadius: 2,
-                  transition: "all 0.3s",
-                  transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : undefined,
-                }}
-              />
+            <button className="flex md:hidden flex-col gap-[5px] cursor-pointer p-1" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+              <span style={{ display: "block", width: 22, height: 2, background: "var(--tx)", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : undefined }} />
+              <span style={{ display: "block", width: 22, height: 2, background: "var(--tx)", borderRadius: 2, opacity: menuOpen ? 0 : 1, transition: "all 0.3s" }} />
+              <span style={{ display: "block", width: 22, height: 2, background: "var(--tx)", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : undefined }} />
             </button>
           </div>
         </div>
@@ -163,71 +123,18 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div
-          style={{
-            display: "flex",
-            position: "fixed",
-            top: 66,
-            left: 0,
-            right: 0,
-            background: "var(--nav)",
-            borderBottom: "1px solid var(--nav-bdr)",
-            padding: "1rem 1.5rem",
-            zIndex: 199,
-            flexDirection: "column",
-            gap: 4,
-          }}
-        >
+        <div style={{ display: "flex", position: "fixed", top: 66, left: 0, right: 0, background: "var(--nav)", borderBottom: "1px solid var(--nav-bdr)", padding: "1rem 1.5rem", zIndex: 199, flexDirection: "column", gap: 4 }}>
           {navLinks.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setMenuOpen(false)}
-              style={{
-                fontSize: 14,
-                fontWeight: 500,
-                padding: "10px 14px",
-                borderRadius: "var(--r-md)",
-                color: pathname === l.href ? "var(--p)" : "var(--tx2)",
-                background: pathname === l.href ? "var(--p3)" : "transparent",
-                cursor: "pointer",
-                transition: "background 0.2s, color 0.2s",
-              }}
-            >
+            <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
+              style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: pathname === l.href ? "var(--p)" : "var(--tx2)", background: pathname === l.href ? "var(--p3)" : "transparent", cursor: "pointer", transition: "background 0.2s, color 0.2s" }}>
               {l.label}
             </Link>
           ))}
           <hr style={{ borderColor: "var(--bdr)", margin: "0.5rem 0" }} />
           {!user && (
             <>
-              <Link
-                href="/login"
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  padding: "10px 14px",
-                  borderRadius: "var(--r-md)",
-                  color: "var(--tx2)",
-                  cursor: "pointer",
-                }}
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  padding: "10px 14px",
-                  borderRadius: "var(--r-md)",
-                  color: "var(--tx2)",
-                  cursor: "pointer",
-                }}
-              >
-                Register
-              </Link>
+              <Link href="/login" onClick={() => setMenuOpen(false)} style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: "var(--tx2)", cursor: "pointer" }}>Login</Link>
+              <Link href="/register" onClick={() => setMenuOpen(false)} style={{ fontSize: 14, fontWeight: 500, padding: "10px 14px", borderRadius: "var(--r-md)", color: "var(--tx2)", cursor: "pointer" }}>Register</Link>
             </>
           )}
         </div>
