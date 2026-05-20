@@ -246,7 +246,8 @@ img {
   border: 1.5px solid var(--bdr);
   background: transparent;
   color: var(--tx);
-  transition: all 0.2s;
+  /* transition: all 0.2s; */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   font-family: "DM Sans", sans-serif;
 }
@@ -262,10 +263,26 @@ img {
   box-shadow: 0 4px 14px rgba(24, 95, 165, 0.28);
 }
 
-.btn-primary:hover {
+/* ✅ Fix: explicitly override .btn:hover for primary buttons */
+/* .btn-primary:hover {
+  background: var(--grad-btn);   
   opacity: 0.92;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(24, 95, 165, 0.38);
+  color: #fff;
+} */
+
+.btn-primary:hover {
+  background: var(--grad-btn);       /* Keeps the original gradient base */
+  filter: brightness(1.15);          /* Makes the gradient pop and look glowing */
+  transform: translateY(-2px) scale(1.02); /* Slight lift and scale up */
+  box-shadow: 0 8px 22px rgba(24, 95, 165, 0.45); /* Stronger shadow drop */
+  color: #fff;
+}
+
+/* Adds a pressing down effect when clicked */
+.btn:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 .btn-sm {
@@ -939,22 +956,15 @@ footer {
   opacity: 1;
 }
 
-/* Hero search placeholder */
-.hero-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);  /* dark mode: white semi-transparent */
-  opacity: 1;
-}
-
-/* Light mode: hero section still has a blue gradient bg,
-   so we darken the placeholder to be readable against it */
-:root:not([data-theme="dark"]) .hero-search-input::placeholder,
-:root:not(.dark) .hero-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.45);  /* slightly more muted on lighter bg */
-  opacity: 1;
-}
-
-/* Also fix the input text color in light mode */
-:root:not([data-theme="dark"]) .hero-search-input,
-:root:not(.dark) .hero-search-input {
+/* ── Hero search bar ── */
+.hero-search-input {
   color: #fff;
+}
+.hero-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.58);
+  opacity: 1;
+}
+[data-theme="light"] .hero-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+  opacity: 1;
 }
