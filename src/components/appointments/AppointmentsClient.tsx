@@ -15,10 +15,10 @@ export default function AppointmentsClient() {
   const [specialty, setSpecialty] = useState(params.get("specialty") || "");
   const [sort, setSort] = useState("");
   const [loading, setLoading] = useState(true);
-  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]); // ✅ raw data from API
-  const [docs, setDocs] = useState<Doctor[]>([]);             // ✅ filtered results
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]); // raw data from API
+  const [docs, setDocs] = useState<Doctor[]>([]);             // filtered results
 
-  // ✅ fetch all doctors once on mount
+  // fetch all doctors once on mount
   useEffect(() => {
     doctorsApi.getAll()
       .then(res => setAllDoctors(res.data))
@@ -26,7 +26,7 @@ export default function AppointmentsClient() {
       .finally(() => setLoading(false));
   }, []);
 
-  // ✅ filter/sort locally whenever search, specialty, sort or allDoctors changes
+  // filter/sort locally whenever search, specialty, sort or allDoctors changes
   useEffect(() => {
     let filtered = [...allDoctors];
     if (search) filtered = filtered.filter(d =>

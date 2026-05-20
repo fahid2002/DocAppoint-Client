@@ -8,7 +8,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// ✅ Attach JWT from localStorage as Bearer token on every request
+// Attach JWT from localStorage as Bearer token on every request
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("da_jwt");
@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ✅ Only redirect on 401 if not an auth endpoint and not already on login page
+// Only redirect on 401 if not an auth endpoint and not already on login page
 api.interceptors.response.use(
   (response) => response,
   (error) => {

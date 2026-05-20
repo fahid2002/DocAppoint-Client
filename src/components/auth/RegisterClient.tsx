@@ -25,7 +25,7 @@ export default function RegisterClient() {
     } else setPassErr("");
   };
 
-  // ✅ handle file selection
+  // handle file selection
   const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

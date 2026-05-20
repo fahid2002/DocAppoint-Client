@@ -37,9 +37,9 @@ export default function DashboardClient() {
   const [editForm, setEditForm] = useState({ patientName: "", gender: "", phone: "", appointmentDate: "", appointmentTime: "" });
   const [profileForm, setProfileForm] = useState({ name: "", photo: "" });
   const [saving, setSaving] = useState(false);
-  const [photoName, setPhotoName] = useState(""); // ✅ file name display
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null); // ✅ preview
-  const photoInputRef = useRef<HTMLInputElement | null>(null); // ✅ file input ref
+  const [photoName, setPhotoName] = useState(""); 
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null); 
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
 
 const [localUser, setLocalUser] = useState<{ name: string; image: string } | null>(() => {
   if (typeof window === "undefined") return null;
@@ -107,7 +107,7 @@ const [localUser, setLocalUser] = useState<{ name: string; image: string } | nul
     setProfileModal(true);
   };
 
-  // ✅ handle file selection
+  // handle file selection
   const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -138,10 +138,10 @@ const [localUser, setLocalUser] = useState<{ name: string; image: string } | nul
     setProfileModal(false);
     toast.success("Profile updated successfully!");
 
-    // ✅ persist to localStorage
+    // persist to localStorage
     localStorage.setItem("da_profile", JSON.stringify({ name: profileForm.name, image: profileForm.photo }));
 
-    // ✅ notify navbar
+    // notify navbar
     window.dispatchEvent(new CustomEvent("profile-updated", {
       detail: { name: profileForm.name, image: profileForm.photo }
     }));

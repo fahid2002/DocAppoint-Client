@@ -41,7 +41,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
   await signOut();
-  localStorage.removeItem("da_profile"); // ✅ clear on logout
+  localStorage.removeItem("da_profile");
   toast.success("You have been logged out.");
   router.push("/");
   router.refresh();
@@ -88,7 +88,7 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link href="/dashboard" className="av-pill">
                   {displayImage ? (
-                    // ✅ use displayImage instead of user.image
+                    // use displayImage instead of user.image
                     <Image
                       src={displayImage}
                       alt={displayName || "User"}
@@ -99,7 +99,7 @@ export default function Navbar() {
                   ) : (
                     <div className="av-circle">{initials(displayName || "U")}</div>
                   )}
-                  {/* ✅ use displayName instead of user.name */}
+                  {/* use displayName instead of user.name */}
                   <span style={{ fontSize: 12, fontWeight: 600, color: "var(--tx)" }}>
                     {(displayName || "User").split(" ")[0]}
                   </span>
